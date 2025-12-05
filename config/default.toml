@@ -1,0 +1,67 @@
+# Systrix Configuration File
+
+[general]
+# Refresh interval in milliseconds (minimum 100ms)
+refresh_interval_ms = 500
+
+# Default theme: "dark", "light", "dracula"
+theme = "dark"
+
+# Log level: "error", "warn", "info", "debug", "trace"
+log_level = "info"
+
+[tui]
+# Show graphs in TUI
+show_graphs = true
+
+# Maximum number of processes to display
+process_limit = 100
+
+# Show per-core CPU usage
+show_per_core_cpu = true
+
+# Enable mouse support
+enable_mouse = false
+
+[monitoring]
+# Cache TTL for expensive operations (seconds)
+cache_ttl_seconds = 5
+
+# Enable GPU monitoring (requires NVIDIA GPU and drivers)
+enable_gpu = true
+
+# Enable SMART disk monitoring (requires smartctl on Linux)
+enable_smart = false
+
+[remote]
+# Enable remote agent server
+enabled = false
+
+# Server port
+port = 8080
+
+# Server bind address
+bind = "127.0.0.1"
+
+# Authentication token (change this!)
+token = "change-me-to-secure-token"
+
+# Enable CORS
+enable_cors = false
+
+[process_management]
+# Require confirmation before killing processes
+require_confirmation = true
+
+# Prevent killing critical system processes
+protect_system_processes = true
+
+# Protected PIDs (comma-separated)
+protected_pids = [1]
+
+[export]
+# Default export format: "json", "csv"
+default_format = "json"
+
+# Include timestamps in exports
+include_timestamps = true

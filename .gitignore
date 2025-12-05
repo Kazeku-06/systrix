@@ -1,0 +1,25 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reports
+*.json
+*.csv
+*.log
+
+# Config (keep default)
+config/*.toml
+!config/default.toml
