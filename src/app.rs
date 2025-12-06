@@ -7,7 +7,7 @@ use anyhow::Result;
 #[cfg(feature = "tui")]
 use crate::tui::{event::EventHandler, ui::Ui};
 #[cfg(feature = "tui")]
-use crate::monitor::{MonitorBackend, SysinfoBackend};
+use crate::monitor::SysinfoBackend;
 #[cfg(feature = "tui")]
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -18,8 +18,6 @@ use crossterm::{
 use ratatui::{backend::CrosstermBackend, Terminal};
 #[cfg(feature = "tui")]
 use std::io;
-#[cfg(feature = "tui")]
-use tokio::sync::watch;
 
 #[cfg(feature = "tui")]
 pub struct App {
@@ -48,11 +46,8 @@ impl App {
         let mut ui = Ui::new();
         let mut event_handler = EventHandler::new(self.refresh_interval);
 
-        // Create channel for data updates
-        let (tx, mut rx) = watch::channel(());
-
         // Run the app
-        let result = self.run_loop(&mut terminal, &mut ui, &mut event_handler, &mut rx).await;
+        let result = self.run_loop(&mut terminal, &mut ui, &mut event_handler).await;
 
         // Restore terminal
         disable_raw_mode()?;
@@ -71,7 +66,6 @@ impl App {
         terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
         ui: &mut Ui,
         event_handler: &mut EventHandler,
-        _rx: &mut watch::Receiver<()>,
     ) -> Result<()> {
         loop {
             // Update data

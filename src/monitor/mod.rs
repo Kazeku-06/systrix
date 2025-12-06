@@ -13,8 +13,8 @@ use async_trait::async_trait;
 pub use cpu::CpuSnapshot;
 pub use memory::MemorySnapshot;
 pub use disk::{DiskSnapshot, DiskInfo};
-pub use network::{NetworkSnapshot, NetworkInterface};
-pub use process::{ProcessInfo, ProcessManager};
+pub use network::NetworkSnapshot;
+pub use process::ProcessInfo;
 
 /// Trait for system monitoring backends
 #[async_trait]

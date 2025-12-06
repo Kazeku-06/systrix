@@ -4,7 +4,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, Signal, System, UpdateKind};
+use sysinfo::{Pid, ProcessRefreshKind, Signal, System};
 use tokio::sync::Mutex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,16 +31,12 @@ pub async fn get_process_list(
     let mut sys = system.lock().await;
     
     // Refresh process list
-    sys.refresh_processes_specifics(
-        ProcessesToUpdate::All,
-        true,
-        ProcessRefreshKind::everything(),
-    );
+    sys.refresh_processes_specifics(ProcessRefreshKind::everything());
     
     let mut processes = Vec::new();
     
     for (pid, process) in sys.processes() {
-        let name = process.name().to_string_lossy().to_string();
+        let name = process.name().to_string();
         
         // Apply filter if provided
         if let Some(filter_str) = filter {
@@ -50,8 +46,7 @@ pub async fn get_process_list(
         }
         
         let user = process.user_id()
-            .and_then(|uid| sys.get_user_by_id(uid))
-            .map(|u| u.name().to_string())
+            .map(|uid| uid.to_string())
             .unwrap_or_else(|| "unknown".to_string());
         
         let disk_usage = process.disk_usage();
@@ -102,6 +97,7 @@ pub async fn kill_process(
     }
 }
 
+#[allow(dead_code)]
 pub async fn suspend_process(
     system: &Arc<Mutex<System>>,
     pid: u32,
@@ -110,12 +106,12 @@ pub async fn suspend_process(
     
     let pid = Pid::from_u32(pid);
     
-    let process = sys.process(pid)
+    let _process = sys.process(pid)
         .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid.as_u32()))?;
     
     #[cfg(unix)]
     {
-        if process.kill_with(Signal::Stop).is_some() {
+        if _process.kill_with(Signal::Stop).is_some() {
             Ok(())
         } else {
             anyhow::bail!("Failed to suspend process {}", pid.as_u32())
@@ -128,6 +124,7 @@ pub async fn suspend_process(
     }
 }
 
+#[allow(dead_code)]
 pub async fn resume_process(
     system: &Arc<Mutex<System>>,
     pid: u32,
@@ -136,12 +133,12 @@ pub async fn resume_process(
     
     let pid = Pid::from_u32(pid);
     
-    let process = sys.process(pid)
+    let _process = sys.process(pid)
         .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid.as_u32()))?;
     
     #[cfg(unix)]
     {
-        if process.kill_with(Signal::Continue).is_some() {
+        if _process.kill_with(Signal::Continue).is_some() {
             Ok(())
         } else {
             anyhow::bail!("Failed to resume process {}", pid.as_u32())

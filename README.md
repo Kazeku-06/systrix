@@ -1,6 +1,6 @@
 # Systrix - System Monitor Terminal App
 
-[![CI](https://github.com/yourusername/systrix/workflows/CI/badge.svg)](https://github.com/yourusername/systrix/actions)
+[![CI](https://github.com/Kazeku-06/systrix/workflows/CI/badge.svg)](https://github.com/Kazeku-06/systrix/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Systrix** is a cross-platform system monitoring tool with both CLI and TUI interfaces, built in Rust.
@@ -22,7 +22,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/systrix.git
+git clone https://github.com/Kazeku-06/systrix.git
 cd systrix
 
 # Build release binary
@@ -38,6 +38,22 @@ cargo install --path .
 - For GPU monitoring: NVIDIA drivers with NVML support (optional)
 
 ## Usage
+
+### Running Systrix
+
+After building, you can run Systrix in two ways:
+
+**Linux/macOS:**
+```bash
+./target/release/systrix <command>
+```
+
+**Windows:**
+```powershell
+.\target\release\systrix.exe <command>
+```
+
+**📖 For detailed running instructions, installation to PATH, and automation, see [RUNNING.md](RUNNING.md)**
 
 ### CLI Mode
 

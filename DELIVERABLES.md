@@ -289,10 +289,10 @@ For developers working on this project:
 
 ## 📞 Support
 
+- **Repository**: https://github.com/Kazeku-06/systrix
 - **Documentation**: See README.md and other .md files
-- **Issues**: GitHub Issues (when repository is public)
-- **Discussions**: GitHub Discussions (when repository is public)
-- **Email**: [Your contact email]
+- **Issues**: https://github.com/Kazeku-06/systrix/issues
+- **Discussions**: https://github.com/Kazeku-06/systrix/discussions
 
 ## ✨ Acknowledgments
 

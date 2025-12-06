@@ -2,20 +2,17 @@
 //! Processes panel showing process list.
 
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Rect},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
     widgets::{Block, Borders, Cell, Row, Table},
     Frame,
 };
 
 use crate::monitor::ProcessInfo;
 use crate::tui::ui::Theme;
-use crate::utils;
 
-pub fn render<B: Backend>(
-    f: &mut Frame<B>,
+pub fn render(
+    f: &mut Frame,
     area: Rect,
     processes: &[ProcessInfo],
     selected_index: usize,

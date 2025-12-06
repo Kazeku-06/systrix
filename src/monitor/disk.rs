@@ -71,7 +71,7 @@ pub async fn get_disk_list(_system: &Arc<Mutex<System>>) -> Result<Vec<DiskInfo>
         disk_list.push(DiskInfo {
             name: disk.name().to_string_lossy().to_string(),
             mount_point: disk.mount_point().to_string_lossy().to_string(),
-            fs_type: String::from_utf8_lossy(disk.file_system()).to_string(),
+            fs_type: disk.file_system().to_string_lossy().to_string(),
             total,
             used,
             available,

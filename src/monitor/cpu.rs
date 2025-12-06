@@ -4,7 +4,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use sysinfo::{CpuRefreshKind, RefreshKind, System};
+use sysinfo::{CpuRefreshKind, System};
 use tokio::sync::Mutex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

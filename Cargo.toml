@@ -6,9 +6,13 @@ rust-version = "1.70"
 authors = ["Systrix Contributors"]
 description = "System Monitor Terminal App - CLI + TUI for monitoring system resources"
 license = "MIT"
-repository = "https://github.com/yourusername/systrix"
+repository = "https://github.com/Kazeku-06/systrix"
 keywords = ["system", "monitor", "tui", "cli", "performance"]
 categories = ["command-line-utilities"]
+
+[lib]
+name = "systrix"
+path = "src/lib.rs"
 
 [dependencies]
 # CLI

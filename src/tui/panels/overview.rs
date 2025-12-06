@@ -2,7 +2,6 @@
 //! Overview panel showing system summary.
 
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
@@ -14,8 +13,8 @@ use crate::monitor::{CpuSnapshot, DiskSnapshot, MemorySnapshot, NetworkSnapshot}
 use crate::tui::ui::Theme;
 use crate::utils;
 
-pub fn render<B: Backend>(
-    f: &mut Frame<B>,
+pub fn render(
+    f: &mut Frame,
     area: Rect,
     cpu_data: &Option<CpuSnapshot>,
     memory_data: &Option<MemorySnapshot>,

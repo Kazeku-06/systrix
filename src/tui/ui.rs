@@ -3,10 +3,8 @@
 
 use anyhow::Result;
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Tabs},
     Frame,
 };
@@ -30,6 +28,7 @@ impl Theme {
         }
     }
     
+    #[allow(dead_code)]
     pub fn bg_color(&self) -> Color {
         match self {
             Theme::Dark => Color::Black,
@@ -88,7 +87,7 @@ impl Ui {
         Ok(())
     }
 
-    pub fn render<B: Backend>(&mut self, f: &mut Frame<B>) {
+    pub fn render(&mut self, f: &mut Frame) {
         let size = f.size();
         
         // Main layout
@@ -120,7 +119,7 @@ impl Ui {
         }
     }
 
-    fn render_header<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_header(&self, f: &mut Frame, area: Rect) {
         let cpu_usage = self.cpu_data.as_ref().map(|c| c.global_usage).unwrap_or(0.0);
         let mem_usage = self.memory_data.as_ref().map(|m| m.usage_percent).unwrap_or(0.0);
         let disk_usage = self.disk_data.as_ref().map(|d| d.usage_percent).unwrap_or(0.0);
@@ -139,7 +138,7 @@ impl Ui {
         f.render_widget(header, area);
     }
 
-    fn render_tabs<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_tabs(&self, f: &mut Frame, area: Rect) {
         let titles = vec!["Overview", "Processes", "Network", "Disk", "Settings"];
         let tabs = Tabs::new(titles)
             .block(Block::default().borders(Borders::ALL))
@@ -154,7 +153,7 @@ impl Ui {
         f.render_widget(tabs, area);
     }
 
-    fn render_panel<B: Backend>(&mut self, f: &mut Frame<B>, area: Rect) {
+    fn render_panel(&mut self, f: &mut Frame, area: Rect) {
         match self.active_panel {
             0 => overview::render(f, area, &self.cpu_data, &self.memory_data, &self.disk_data, &self.network_data, &self.theme),
             1 => processes::render(f, area, &self.process_data, self.selected_process_index, self.scroll_offset, &self.theme),
@@ -164,35 +163,35 @@ impl Ui {
         }
     }
 
-    fn render_network_panel<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_network_panel(&self, f: &mut Frame, area: Rect) {
         let text = "Network panel - TODO";
         let paragraph = Paragraph::new(text)
             .block(Block::default().borders(Borders::ALL).title("Network"));
         f.render_widget(paragraph, area);
     }
 
-    fn render_disk_panel<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_disk_panel(&self, f: &mut Frame, area: Rect) {
         let text = "Disk panel - TODO";
         let paragraph = Paragraph::new(text)
             .block(Block::default().borders(Borders::ALL).title("Disk"));
         f.render_widget(paragraph, area);
     }
 
-    fn render_settings_panel<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_settings_panel(&self, f: &mut Frame, area: Rect) {
         let text = format!("Theme: {:?}\nPaused: {}", self.theme, self.paused);
         let paragraph = Paragraph::new(text)
             .block(Block::default().borders(Borders::ALL).title("Settings"));
         f.render_widget(paragraph, area);
     }
 
-    fn render_footer<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_footer(&self, f: &mut Frame, area: Rect) {
         let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [p]Pause [t]Theme ";
         let footer = Paragraph::new(footer_text)
             .style(Style::default().fg(Color::DarkGray));
         f.render_widget(footer, area);
     }
 
-    fn render_modal<B: Backend>(&self, f: &mut Frame<B>, area: Rect) {
+    fn render_modal(&self, f: &mut Frame, area: Rect) {
         let block = Block::default()
             .title("Confirmation")
             .borders(Borders::ALL)

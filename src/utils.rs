@@ -44,6 +44,7 @@ pub fn format_duration(seconds: u64) -> String {
 }
 
 /// Create a simple bar chart string
+#[allow(dead_code)]
 pub fn create_bar(percentage: f32, width: usize) -> String {
     let filled = ((percentage / 100.0) * width as f32) as usize;
     let filled = filled.min(width);

@@ -11,7 +11,7 @@ Thank you for your interest in contributing to Systrix!
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/systrix.git
+   git clone https://github.com/Kazeku-06/systrix.git
    cd systrix
    ```
 

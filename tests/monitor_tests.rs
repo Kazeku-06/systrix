@@ -3,6 +3,9 @@
 
 use systrix::monitor::{MonitorBackend, SysinfoBackend};
 
+#[allow(unused_imports)]
+use systrix::monitor::ProcessManager;
+
 #[tokio::test]
 async fn test_cpu_snapshot() {
     let backend = SysinfoBackend::new();

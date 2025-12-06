@@ -1,11 +1,29 @@
 # Systrix Examples
 
+## Running Systrix
+
+The examples below use `systrix` as the command. Depending on your setup:
+
+- **If installed to PATH**: `systrix <command>`
+- **Linux/macOS (from project dir)**: `./target/release/systrix <command>`
+- **Windows (from project dir)**: `.\target\release\systrix.exe <command>`
+
 ## CLI Examples
 
 ### System Information
 
+**Linux/macOS:**
 ```bash
-$ systrix info
+$ ./target/release/systrix info
+```
+
+**Windows:**
+```powershell
+PS> .\target\release\systrix.exe info
+```
+
+**Output:**
+```
 ╔══════════════════════════════════════════════════════════╗
 ║                    SYSTRIX - System Info                 ║
 ╚══════════════════════════════════════════════════════════╝
@@ -33,8 +51,17 @@ System:
 
 ### Process List
 
+**Command:**
 ```bash
-$ systrix ps --limit 10 --sort cpu
+# Linux/macOS
+$ ./target/release/systrix ps --limit 10 --sort cpu
+
+# Windows
+PS> .\target\release\systrix.exe ps --limit 10 --sort cpu
+```
+
+**Output:**
+```
 PID      USER       NAME                  CPU%   MEM%   IO_R     IO_W     THREADS
 1234     user       chrome                34.2   5.1    2.1 MB   0.3 MB        42
 2345     user       code                  12.0   3.2    1.5 MB   0.8 MB        28
@@ -48,8 +75,17 @@ Showing 10 of 156 processes
 
 ### Filter Processes
 
+**Command:**
 ```bash
-$ systrix ps --filter chrome --limit 5
+# Linux/macOS
+$ ./target/release/systrix ps --filter chrome --limit 5
+
+# Windows
+PS> .\target\release\systrix.exe ps --filter chrome --limit 5
+```
+
+**Output:**
+```
 PID      USER       NAME                  CPU%   MEM%   IO_R     IO_W     THREADS
 1234     user       chrome                34.2   5.1    2.1 MB   0.3 MB        42
 1235     user       chrome                12.1   2.3    0.5 MB   0.1 MB        18
@@ -60,27 +96,63 @@ Showing 3 of 3 processes
 
 ### Kill Process
 
+**Interactive (with confirmation):**
 ```bash
-$ systrix kill 1234
+# Linux/macOS
+$ ./target/release/systrix kill 1234
+
+# Windows
+PS> .\target\release\systrix.exe kill 1234
+```
+
+**Output:**
+```
 About to kill process 1234 with signal SIGTERM
 Continue? (y/N): y
 ✓ Process 1234 killed successfully
 ```
 
+**Force kill without confirmation:**
 ```bash
-$ systrix kill 1234 --signal SIGKILL --force
+# Linux/macOS
+$ ./target/release/systrix kill 1234 --signal SIGKILL --force
+
+# Windows
+PS> .\target\release\systrix.exe kill 1234 --signal SIGKILL --force
+```
+
+**Output:**
+```
 ✓ Process 1234 killed successfully
 ```
 
+**Attempting to kill system process:**
 ```bash
-$ systrix kill 1
+# Linux/macOS
+$ ./target/release/systrix kill 1
+
+# Windows
+PS> .\target\release\systrix.exe kill 1
+```
+
+**Output:**
+```
 ✗ Cannot kill system process (PID 1). Use --force to override (not recommended)
 ```
 
 ### Network Interfaces
 
+**Command:**
 ```bash
-$ systrix net
+# Linux/macOS
+$ ./target/release/systrix net
+
+# Windows
+PS> .\target\release\systrix.exe net
+```
+
+**Output:**
+```
 Network Interfaces:
 INTERFACE       RX_BYTES     TX_BYTES      RX_RATE      TX_RATE
 eth0            1.2 GB       456.7 MB      1.2 MB/s     0.3 MB/s
@@ -90,8 +162,17 @@ lo              45.6 MB      45.6 MB       0 B/s        0 B/s
 
 ### Disk Partitions
 
+**Command:**
 ```bash
-$ systrix disk
+# Linux/macOS
+$ ./target/release/systrix disk
+
+# Windows
+PS> .\target\release\systrix.exe disk
+```
+
+**Output:**
+```
 Disk Partitions:
 MOUNT                TYPE           TOTAL        USED    AVAILABLE     USE%
 /                    ext4         512.0 GB    312.5 GB    199.5 GB    61.0%
@@ -101,8 +182,17 @@ MOUNT                TYPE           TOTAL        USED    AVAILABLE     USE%
 
 ### Export Report
 
+**Command:**
 ```bash
-$ systrix report --output system-report.json
+# Linux/macOS
+$ ./target/release/systrix report --output system-report.json
+
+# Windows
+PS> .\target\release\systrix.exe report --output system-report.json
+```
+
+**Output:**
+```
 ✓ Report exported to: system-report.json
 ```
 
@@ -142,14 +232,26 @@ Example JSON output:
 
 ### Launch TUI
 
+**Linux/macOS:**
 ```bash
-$ systrix tui
+$ ./target/release/systrix tui
+```
+
+**Windows:**
+```powershell
+PS> .\target\release\systrix.exe tui
 ```
 
 ### Custom Refresh Rate
 
+**Linux/macOS:**
 ```bash
-$ systrix tui --refresh-interval 1000
+$ ./target/release/systrix tui --refresh-interval 1000
+```
+
+**Windows:**
+```powershell
+PS> .\target\release\systrix.exe tui --refresh-interval 1000
 ```
 
 ### TUI Layout (ASCII Art)
@@ -216,26 +318,59 @@ $ systrix tui --refresh-interval 1000
 
 ### Monitoring Specific Process
 
+**Linux/macOS:**
 ```bash
-# Watch a specific process
-watch -n 1 'systrix ps --filter myapp --limit 1'
+# Watch a specific process (updates every second)
+watch -n 1 './target/release/systrix ps --filter myapp --limit 1'
+```
+
+**Windows (PowerShell):**
+```powershell
+# Watch a specific process (updates every second)
+while ($true) { 
+    Clear-Host
+    .\target\release\systrix.exe ps --filter myapp --limit 1
+    Start-Sleep -Seconds 1
+}
 ```
 
 ### Automated Reporting
 
+**Linux/macOS (cron):**
 ```bash
+# Add to crontab (crontab -e)
 # Generate hourly reports
 0 * * * * /usr/local/bin/systrix report --output /var/log/systrix/report-$(date +\%Y\%m\%d-\%H).json
 ```
 
+**Windows (Task Scheduler):**
+```powershell
+# Create scheduled task (run as Administrator)
+$action = New-ScheduledTaskAction -Execute "C:\path\to\systrix.exe" -Argument "report --output C:\logs\report-$(Get-Date -Format 'yyyyMMdd-HH').json"
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1)
+Register-ScheduledTask -TaskName "Systrix Report" -Action $action -Trigger $trigger
+```
+
 ### Process Management Script
 
+**Linux/macOS (bash):**
 ```bash
 #!/bin/bash
 # Kill all Chrome processes
-systrix ps --filter chrome | tail -n +2 | awk '{print $1}' | while read pid; do
-    systrix kill $pid --force
+./target/release/systrix ps --filter chrome | tail -n +2 | awk '{print $1}' | while read pid; do
+    ./target/release/systrix kill $pid --force
 done
+```
+
+**Windows (PowerShell):**
+```powershell
+# Kill all Chrome processes
+.\target\release\systrix.exe ps --filter chrome | 
+    Select-Object -Skip 2 | 
+    ForEach-Object {
+        $pid = ($_ -split '\s+')[0]
+        .\target\release\systrix.exe kill $pid --force
+    }
 ```
 
 ### Remote Monitoring (with remote feature)

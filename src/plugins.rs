@@ -7,6 +7,7 @@ use anyhow::Result;
 use std::collections::HashMap;
 
 /// Plugin trait that all plugins must implement
+#[allow(dead_code)]
 pub trait Plugin: Send + Sync {
     /// Plugin name
     fn name(&self) -> &str;
@@ -25,6 +26,7 @@ pub trait Plugin: Send + Sync {
 }
 
 /// Plugin registry for managing plugins
+#[allow(dead_code)]
 pub struct PluginRegistry {
     plugins: HashMap<String, Box<dyn Plugin>>,
 }
@@ -69,6 +71,7 @@ impl Default for PluginRegistry {
 }
 
 /// Example built-in plugin
+#[allow(dead_code)]
 pub struct ExamplePlugin;
 
 impl Plugin for ExamplePlugin {

@@ -23,8 +23,35 @@ cargo install --path .
 
 ## First Run
 
+### Running the Binary
+
+After building, the binary will be located at:
+- **Linux/macOS**: `./target/release/systrix`
+- **Windows**: `.\target\release\systrix.exe`
+
+For convenience, you can add it to your PATH or create an alias:
+
+**Linux/macOS:**
+```bash
+# Add to PATH
+sudo cp target/release/systrix /usr/local/bin/
+
+# Or create alias (add to ~/.bashrc or ~/.zshrc)
+alias systrix='./target/release/systrix'
+```
+
+**Windows:**
+```powershell
+# Add to PATH (run as Administrator)
+$env:Path += ";$PWD\target\release"
+
+# Or create alias (add to PowerShell profile)
+Set-Alias systrix "$PWD\target\release\systrix.exe"
+```
+
 ### Try the CLI
 
+**Linux/macOS:**
 ```bash
 # System information
 ./target/release/systrix info
@@ -39,14 +66,39 @@ cargo install --path .
 ./target/release/systrix disk
 ```
 
+**Windows:**
+```powershell
+# System information
+.\target\release\systrix.exe info
+
+# List top 10 processes by CPU
+.\target\release\systrix.exe ps --limit 10
+
+# Network interfaces
+.\target\release\systrix.exe net
+
+# Disk usage
+.\target\release\systrix.exe disk
+```
+
 ### Launch the TUI
 
+**Linux/macOS:**
 ```bash
 # Start interactive TUI
 ./target/release/systrix tui
 
 # With custom refresh rate (1 second)
 ./target/release/systrix tui --refresh-interval 1000
+```
+
+**Windows:**
+```powershell
+# Start interactive TUI
+.\target\release\systrix.exe tui
+
+# With custom refresh rate (1 second)
+.\target\release\systrix.exe tui --refresh-interval 1000
 ```
 
 ## TUI Quick Reference
@@ -215,10 +267,11 @@ systrix tui --help
 
 ## Next Steps
 
-1. Read [README.md](README.md) for detailed documentation
-2. Check [EXAMPLES.md](EXAMPLES.md) for more usage examples
-3. See [PLATFORM_NOTES.md](PLATFORM_NOTES.md) for platform-specific info
-4. Review [BUILD.md](BUILD.md) for advanced build options
+1. Read [RUNNING.md](RUNNING.md) for detailed running instructions
+2. Read [README.md](README.md) for full documentation
+3. Check [EXAMPLES.md](EXAMPLES.md) for more usage examples
+4. See [PLATFORM_NOTES.md](PLATFORM_NOTES.md) for platform-specific info
+5. Review [BUILD.md](BUILD.md) for advanced build options
 
 ## Tips & Tricks
 
