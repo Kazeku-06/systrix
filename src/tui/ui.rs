@@ -269,6 +269,17 @@ impl Ui {
     pub fn set_active_panel(&mut self, index: usize) {
         self.active_panel = index.min(4);
         self.scroll_offset = 0;
+        
+        // Reset settings category when entering settings panel
+        if self.active_panel == 4 {
+            self.settings_state.selected_category = 0;
+        }
+    }
+    
+    pub fn set_settings_category(&mut self, category: usize) {
+        if self.active_panel == 4 {
+            self.settings_state.selected_category = category.min(4);
+        }
     }
 
     pub fn next_panel(&mut self) {
@@ -277,43 +288,106 @@ impl Ui {
     }
 
     pub fn scroll_up(&mut self) {
-        if self.active_panel == 1 && self.selected_process_index > 0 {
-            self.selected_process_index -= 1;
-            if self.selected_process_index < self.scroll_offset {
-                self.scroll_offset = self.selected_process_index;
+        match self.active_panel {
+            1 => {
+                // Processes panel - use filtered list length
+                if self.selected_process_index > 0 {
+                    self.selected_process_index -= 1;
+                    if self.selected_process_index < self.scroll_offset {
+                        self.scroll_offset = self.selected_process_index;
+                    }
+                }
             }
-        } else if self.active_panel == 4 && self.settings_state.selected_category > 0 {
-            self.settings_state.selected_category -= 1;
+            4 => {
+                // Settings panel
+                if self.settings_state.selected_category > 0 {
+                    self.settings_state.selected_category -= 1;
+                }
+            }
+            _ => {}
         }
     }
 
     pub fn scroll_down(&mut self) {
-        if self.active_panel == 1 && self.selected_process_index < self.process_data.len().saturating_sub(1) {
-            self.selected_process_index += 1;
-        } else if self.active_panel == 4 && self.settings_state.selected_category < 4 {
-            self.settings_state.selected_category += 1;
+        match self.active_panel {
+            1 => {
+                // Processes panel - use filtered list length
+                let max_index = if self.filtered_process_indices.is_empty() {
+                    0
+                } else {
+                    self.filtered_process_indices.len().saturating_sub(1)
+                };
+                
+                if self.selected_process_index < max_index {
+                    self.selected_process_index += 1;
+                }
+            }
+            4 => {
+                // Settings panel (5 categories: 0-4)
+                if self.settings_state.selected_category < 4 {
+                    self.settings_state.selected_category += 1;
+                }
+            }
+            _ => {}
         }
     }
 
     pub fn page_up(&mut self) {
-        if self.selected_process_index >= 10 {
-            self.selected_process_index -= 10;
-        } else {
-            self.selected_process_index = 0;
+        match self.active_panel {
+            1 => {
+                // Processes panel
+                if self.selected_process_index >= 10 {
+                    self.selected_process_index -= 10;
+                } else {
+                    self.selected_process_index = 0;
+                }
+            }
+            4 => {
+                // Settings panel - jump to first category
+                self.settings_state.selected_category = 0;
+            }
+            _ => {}
         }
     }
 
     pub fn page_down(&mut self) {
-        self.selected_process_index = (self.selected_process_index + 10).min(self.process_data.len().saturating_sub(1));
+        match self.active_panel {
+            1 => {
+                // Processes panel
+                self.selected_process_index = (self.selected_process_index + 10)
+                    .min(self.process_data.len().saturating_sub(1));
+            }
+            4 => {
+                // Settings panel - jump to last category
+                self.settings_state.selected_category = 4;
+            }
+            _ => {}
+        }
     }
 
     pub fn scroll_to_top(&mut self) {
-        self.selected_process_index = 0;
-        self.scroll_offset = 0;
+        match self.active_panel {
+            1 => {
+                self.selected_process_index = 0;
+                self.scroll_offset = 0;
+            }
+            4 => {
+                self.settings_state.selected_category = 0;
+            }
+            _ => {}
+        }
     }
 
     pub fn scroll_to_bottom(&mut self) {
-        self.selected_process_index = self.process_data.len().saturating_sub(1);
+        match self.active_panel {
+            1 => {
+                self.selected_process_index = self.process_data.len().saturating_sub(1);
+            }
+            4 => {
+                self.settings_state.selected_category = 4;
+            }
+            _ => {}
+        }
     }
 
     pub fn show_details(&mut self) {
@@ -411,6 +485,10 @@ impl Ui {
     
     pub fn is_search_mode(&self) -> bool {
         self.search_mode
+    }
+    
+    pub fn is_in_settings_panel(&self) -> bool {
+        self.active_panel == 4
     }
     
     pub fn search_input(&mut self, c: char) {
