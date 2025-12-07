@@ -12,16 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✨ **Complete Disk Panel** - Disk partition table with usage bars and color coding
 - ✨ **Process Search** - Press `/` in Processes panel to search by name or user
 - ✨ **Process Detail Modal** - Press `Enter` on a process to see detailed information
+- ✨ **Advanced Settings Panel** - Comprehensive settings with 5 categories
+  - 🎨 Appearance - Theme settings and color coding info
+  - ⚡ Performance - Refresh interval and monitoring status
+  - 📊 Display - Process limit and graph options
+  - ⌨️ Keyboard - Complete keyboard shortcuts reference
+  - ℹ️ About - Version info and technology stack
 - ✨ **Configuration File Support** - Read settings from config/default.toml
 - 📊 Disk usage color coding (red >90%, yellow >75%)
 - 🔍 Real-time process filtering as you type
 - 📝 Process detail modal shows full executable path, threads, disk I/O
+- 🎯 Settings navigation with arrow keys
 
 ### Changed
 - 🎨 Improved Processes panel with search indicator
 - 🎨 Better modal sizing for different content types
 - 📊 Network panel now shows per-interface statistics
 - 📊 Disk panel shows filesystem types and mount points
+- 🎨 Settings panel completely redesigned with categories
 
 ### Fixed
 - 🐛 Fixed process selection with filtered results

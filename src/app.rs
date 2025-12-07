@@ -43,7 +43,7 @@ impl App {
         let mut terminal = Terminal::new(backend)?;
 
         // Create UI and event handler
-        let mut ui = Ui::new();
+        let mut ui = Ui::with_refresh_interval(self.refresh_interval);
         let mut event_handler = EventHandler::new(self.refresh_interval);
 
         // Run the app

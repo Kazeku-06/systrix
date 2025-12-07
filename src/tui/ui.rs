@@ -10,7 +10,7 @@ use ratatui::{
 };
 
 use crate::monitor::{CpuSnapshot, DiskInfo, DiskSnapshot, MemorySnapshot, MonitorBackend, NetworkSnapshot, ProcessInfo};
-use super::panels::{disk, network, overview, processes};
+use super::panels::{disk, network, overview, processes, settings};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Theme {
@@ -24,6 +24,14 @@ pub enum ModalType {
     None,
     KillConfirm,
     ProcessDetail,
+}
+
+pub struct SettingsState {
+    pub selected_category: usize,
+    pub refresh_interval: u64,
+    pub process_limit: usize,
+    pub show_graphs: bool,
+    pub show_per_core_cpu: bool,
 }
 
 impl Theme {
@@ -55,6 +63,7 @@ pub struct Ui {
     modal_type: ModalType,
     search_mode: bool,
     search_query: String,
+    settings_state: SettingsState,
     
     // Data
     cpu_data: Option<CpuSnapshot>,
@@ -68,7 +77,7 @@ pub struct Ui {
 }
 
 impl Ui {
-    pub fn new() -> Self {
+    pub fn with_refresh_interval(refresh_interval: u64) -> Self {
         Self {
             active_panel: 0,
             scroll_offset: 0,
@@ -79,6 +88,13 @@ impl Ui {
             modal_type: ModalType::None,
             search_mode: false,
             search_query: String::new(),
+            settings_state: SettingsState {
+                selected_category: 0,
+                refresh_interval,
+                process_limit: 100,
+                show_graphs: true,
+                show_per_core_cpu: true,
+            },
             cpu_data: None,
             memory_data: None,
             disk_data: None,
@@ -209,16 +225,11 @@ impl Ui {
             },
             2 => network::render(f, area, &self.network_data, &self.theme),
             3 => disk::render(f, area, &self.disk_list, &self.theme),
-            _ => self.render_settings_panel(f, area),
+            _ => settings::render(f, area, &self.settings_state, &self.theme, self.paused),
         }
     }
 
-    fn render_settings_panel(&self, f: &mut Frame, area: Rect) {
-        let text = format!("Theme: {:?}\nPaused: {}", self.theme, self.paused);
-        let paragraph = Paragraph::new(text)
-            .block(Block::default().borders(Borders::ALL).title("Settings"));
-        f.render_widget(paragraph, area);
-    }
+
 
     fn render_footer(&self, f: &mut Frame, area: Rect) {
         let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [p]Pause [t]Theme ";
@@ -271,12 +282,16 @@ impl Ui {
             if self.selected_process_index < self.scroll_offset {
                 self.scroll_offset = self.selected_process_index;
             }
+        } else if self.active_panel == 4 && self.settings_state.selected_category > 0 {
+            self.settings_state.selected_category -= 1;
         }
     }
 
     pub fn scroll_down(&mut self) {
         if self.active_panel == 1 && self.selected_process_index < self.process_data.len().saturating_sub(1) {
             self.selected_process_index += 1;
+        } else if self.active_panel == 4 && self.settings_state.selected_category < 4 {
+            self.settings_state.selected_category += 1;
         }
     }
 
