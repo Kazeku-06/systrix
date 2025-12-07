@@ -5,6 +5,17 @@ All notable changes to Systrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- 🔋 **Battery Monitoring** - Display battery status, percentage, and time remaining (laptops)
+  - Battery gauge in Overview panel
+  - Color-coded battery status (green/yellow/red)
+  - Charging indicator with ⚡ icon
+  - Time remaining estimation
+  - Battery health percentage
+  - Cross-platform support (Windows, Linux, macOS)
+
 ## [0.2.0] - 2025-12-06
 
 ### Added

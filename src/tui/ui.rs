@@ -9,7 +9,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::monitor::{CpuSnapshot, DiskInfo, DiskSnapshot, MemorySnapshot, MonitorBackend, NetworkSnapshot, ProcessInfo};
+use crate::monitor::{BatteryInfo, CpuSnapshot, DiskInfo, DiskSnapshot, MemorySnapshot, MonitorBackend, NetworkSnapshot, ProcessInfo};
 use super::panels::{disk, network, overview, processes, settings};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -70,6 +70,7 @@ pub struct Ui {
     memory_data: Option<MemorySnapshot>,
     disk_data: Option<DiskSnapshot>,
     network_data: Option<NetworkSnapshot>,
+    battery_data: Option<BatteryInfo>,
     process_data: Vec<ProcessInfo>,
     disk_list: Vec<DiskInfo>,
     selected_process_index: usize,
@@ -99,6 +100,7 @@ impl Ui {
             memory_data: None,
             disk_data: None,
             network_data: None,
+            battery_data: None,
             process_data: Vec::new(),
             disk_list: Vec::new(),
             selected_process_index: 0,
@@ -115,6 +117,7 @@ impl Ui {
         self.memory_data = Some(backend.memory_snapshot().await?);
         self.disk_data = Some(backend.disk_snapshot().await?);
         self.network_data = Some(backend.network_snapshot().await?);
+        self.battery_data = crate::monitor::battery::get_battery_info().await.ok();
         self.process_data = backend.process_list(None, "cpu", 100).await?;
         self.disk_list = backend.disk_list().await?;
         
@@ -208,7 +211,7 @@ impl Ui {
 
     fn render_panel(&mut self, f: &mut Frame, area: Rect) {
         match self.active_panel {
-            0 => overview::render(f, area, &self.cpu_data, &self.memory_data, &self.disk_data, &self.network_data, &self.theme),
+            0 => overview::render(f, area, &self.cpu_data, &self.memory_data, &self.disk_data, &self.network_data, &self.battery_data, &self.theme),
             1 => {
                 let filtered_processes: Vec<&ProcessInfo> = self.filtered_process_indices
                     .iter()

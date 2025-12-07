@@ -1,6 +1,7 @@
 // src/monitor/mod.rs
 //! System monitoring backends and data structures.
 
+pub mod battery;
 pub mod cpu;
 pub mod memory;
 pub mod disk;
@@ -10,6 +11,7 @@ pub mod process;
 use anyhow::Result;
 use async_trait::async_trait;
 
+pub use battery::BatteryInfo;
 pub use cpu::CpuSnapshot;
 pub use memory::MemorySnapshot;
 pub use disk::{DiskSnapshot, DiskInfo};

@@ -8,6 +8,7 @@
 ## Features
 
 - 📊 **Real-time monitoring**: CPU, Memory, Disk, Network, Processes
+- 🔋 **Battery monitoring**: Battery status, charge level, time remaining (laptops)
 - 🖥️ **Interactive TUI**: Full-screen terminal UI with charts and tables
 - ⚡ **CLI commands**: Quick system snapshots and process management
 - 🎨 **Multiple themes**: Dark, Light, Dracula
