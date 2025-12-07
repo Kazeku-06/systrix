@@ -14,10 +14,12 @@ use crate::tui::ui::Theme;
 pub fn render(
     f: &mut Frame,
     area: Rect,
-    processes: &[ProcessInfo],
+    processes: &[&ProcessInfo],
     selected_index: usize,
     _scroll_offset: usize,
     theme: &Theme,
+    search_query: &str,
+    search_mode: bool,
 ) {
     let header_cells = ["PID", "USER", "NAME", "CPU%", "MEM%", "THREADS"]
         .iter()
@@ -48,6 +50,14 @@ pub fn render(
         Row::new(cells).style(style).height(1)
     });
     
+    let title = if search_mode {
+        format!("Processes - Search: {}█", search_query)
+    } else if !search_query.is_empty() {
+        format!("Processes ({} filtered) - Press ESC to clear", processes.len())
+    } else {
+        format!("Processes ({} total) - Press / to search", processes.len())
+    };
+    
     let table = Table::new(rows, [
         Constraint::Length(8),
         Constraint::Length(12),
@@ -59,7 +69,7 @@ pub fn render(
     .header(header)
     .block(Block::default()
         .borders(Borders::ALL)
-        .title(format!("Processes ({} total)", processes.len())));
+        .title(title));
     
     f.render_widget(table, area);
 }

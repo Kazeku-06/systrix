@@ -9,14 +9,21 @@ use ratatui::{
     Frame,
 };
 
-use crate::monitor::{CpuSnapshot, DiskSnapshot, MemorySnapshot, MonitorBackend, NetworkSnapshot, ProcessInfo};
-use super::panels::{overview, processes};
+use crate::monitor::{CpuSnapshot, DiskInfo, DiskSnapshot, MemorySnapshot, MonitorBackend, NetworkSnapshot, ProcessInfo};
+use super::panels::{disk, network, overview, processes};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Theme {
     Dark,
     Light,
     Dracula,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ModalType {
+    None,
+    KillConfirm,
+    ProcessDetail,
 }
 
 impl Theme {
@@ -45,6 +52,9 @@ pub struct Ui {
     paused: bool,
     show_modal: bool,
     modal_message: String,
+    modal_type: ModalType,
+    search_mode: bool,
+    search_query: String,
     
     // Data
     cpu_data: Option<CpuSnapshot>,
@@ -52,7 +62,9 @@ pub struct Ui {
     disk_data: Option<DiskSnapshot>,
     network_data: Option<NetworkSnapshot>,
     process_data: Vec<ProcessInfo>,
+    disk_list: Vec<DiskInfo>,
     selected_process_index: usize,
+    filtered_process_indices: Vec<usize>,
 }
 
 impl Ui {
@@ -64,12 +76,17 @@ impl Ui {
             paused: false,
             show_modal: false,
             modal_message: String::new(),
+            modal_type: ModalType::None,
+            search_mode: false,
+            search_query: String::new(),
             cpu_data: None,
             memory_data: None,
             disk_data: None,
             network_data: None,
             process_data: Vec::new(),
+            disk_list: Vec::new(),
             selected_process_index: 0,
+            filtered_process_indices: Vec::new(),
         }
     }
 
@@ -83,8 +100,28 @@ impl Ui {
         self.disk_data = Some(backend.disk_snapshot().await?);
         self.network_data = Some(backend.network_snapshot().await?);
         self.process_data = backend.process_list(None, "cpu", 100).await?;
+        self.disk_list = backend.disk_list().await?;
+        
+        // Update filtered indices based on search
+        self.update_filtered_processes();
         
         Ok(())
+    }
+    
+    fn update_filtered_processes(&mut self) {
+        if self.search_query.is_empty() {
+            self.filtered_process_indices = (0..self.process_data.len()).collect();
+        } else {
+            self.filtered_process_indices = self.process_data
+                .iter()
+                .enumerate()
+                .filter(|(_, p)| {
+                    p.name.to_lowercase().contains(&self.search_query.to_lowercase()) ||
+                    p.user.to_lowercase().contains(&self.search_query.to_lowercase())
+                })
+                .map(|(i, _)| i)
+                .collect();
+        }
     }
 
     pub fn render(&mut self, f: &mut Frame) {
@@ -156,25 +193,24 @@ impl Ui {
     fn render_panel(&mut self, f: &mut Frame, area: Rect) {
         match self.active_panel {
             0 => overview::render(f, area, &self.cpu_data, &self.memory_data, &self.disk_data, &self.network_data, &self.theme),
-            1 => processes::render(f, area, &self.process_data, self.selected_process_index, self.scroll_offset, &self.theme),
-            2 => self.render_network_panel(f, area),
-            3 => self.render_disk_panel(f, area),
+            1 => {
+                let filtered_processes: Vec<&ProcessInfo> = self.filtered_process_indices
+                    .iter()
+                    .filter_map(|&i| self.process_data.get(i))
+                    .collect();
+                
+                let actual_selected = if !self.filtered_process_indices.is_empty() {
+                    self.selected_process_index.min(self.filtered_process_indices.len() - 1)
+                } else {
+                    0
+                };
+                
+                processes::render(f, area, &filtered_processes, actual_selected, self.scroll_offset, &self.theme, &self.search_query, self.search_mode);
+            },
+            2 => network::render(f, area, &self.network_data, &self.theme),
+            3 => disk::render(f, area, &self.disk_list, &self.theme),
             _ => self.render_settings_panel(f, area),
         }
-    }
-
-    fn render_network_panel(&self, f: &mut Frame, area: Rect) {
-        let text = "Network panel - TODO";
-        let paragraph = Paragraph::new(text)
-            .block(Block::default().borders(Borders::ALL).title("Network"));
-        f.render_widget(paragraph, area);
-    }
-
-    fn render_disk_panel(&self, f: &mut Frame, area: Rect) {
-        let text = "Disk panel - TODO";
-        let paragraph = Paragraph::new(text)
-            .block(Block::default().borders(Borders::ALL).title("Disk"));
-        f.render_widget(paragraph, area);
     }
 
     fn render_settings_panel(&self, f: &mut Frame, area: Rect) {
@@ -192,16 +228,28 @@ impl Ui {
     }
 
     fn render_modal(&self, f: &mut Frame, area: Rect) {
+        let title = match self.modal_type {
+            ModalType::KillConfirm => "Confirmation",
+            ModalType::ProcessDetail => "Process Details",
+            ModalType::None => "Modal",
+        };
+        
+        let (width, height) = match self.modal_type {
+            ModalType::ProcessDetail => (70, 60),
+            _ => (60, 20),
+        };
+        
         let block = Block::default()
-            .title("Confirmation")
+            .title(title)
             .borders(Borders::ALL)
             .style(Style::default().bg(Color::Black));
         
-        let modal_area = centered_rect(60, 20, area);
+        let modal_area = centered_rect(width, height, area);
         
         let text = Paragraph::new(self.modal_message.as_str())
             .block(block)
-            .style(Style::default().fg(Color::White));
+            .style(Style::default().fg(Color::White))
+            .wrap(ratatui::widgets::Wrap { trim: true });
         
         f.render_widget(text, modal_area);
     }
@@ -254,15 +302,53 @@ impl Ui {
     }
 
     pub fn show_details(&mut self) {
-        // TODO: Show process details modal
+        if self.active_panel == 1 && !self.filtered_process_indices.is_empty() {
+            let actual_index = self.filtered_process_indices.get(self.selected_process_index);
+            if let Some(&idx) = actual_index {
+                if let Some(process) = self.process_data.get(idx) {
+                    self.modal_message = format!(
+                        "Process Details\n\n\
+                        PID: {}\n\
+                        Name: {}\n\
+                        User: {}\n\
+                        CPU: {:.1}%\n\
+                        Memory: {:.1}%\n\
+                        Disk Read: {}\n\
+                        Disk Write: {}\n\
+                        Threads: {}\n\
+                        Status: {}\n\
+                        Executable: {}\n\n\
+                        Press ESC to close",
+                        process.pid,
+                        process.name,
+                        process.user,
+                        process.cpu_usage,
+                        process.memory_usage,
+                        crate::utils::format_bytes(process.disk_read),
+                        crate::utils::format_bytes(process.disk_write),
+                        process.threads,
+                        process.status,
+                        process.exe_path
+                    );
+                    self.modal_type = ModalType::ProcessDetail;
+                    self.show_modal = true;
+                }
+            }
+        }
     }
 
     pub async fn kill_selected_process(&mut self) -> Result<()> {
-        if self.active_panel == 1 && !self.process_data.is_empty() {
-            if let Some(process) = self.process_data.get(self.selected_process_index) {
-                self.modal_message = format!("Kill process {} (PID {})?\nPress 'y' to confirm, ESC to cancel", 
-                    process.name, process.pid);
-                self.show_modal = true;
+        if self.active_panel == 1 && !self.filtered_process_indices.is_empty() {
+            let actual_index = self.filtered_process_indices.get(self.selected_process_index);
+            if let Some(&idx) = actual_index {
+                if let Some(process) = self.process_data.get(idx) {
+                    self.modal_message = format!(
+                        "Kill process {} (PID {})?\n\nPress 'y' to confirm, ESC to cancel", 
+                        process.name, process.pid
+                    );
+                    self.modal_type = ModalType::KillConfirm;
+                    self.show_modal = true;
+                }
             }
         }
         Ok(())
@@ -291,11 +377,36 @@ impl Ui {
     }
 
     pub fn start_search(&mut self) {
-        // TODO: Implement search
+        if self.active_panel == 1 { // Only in Processes panel
+            self.search_mode = true;
+            self.search_query.clear();
+        }
     }
 
     pub fn cancel_action(&mut self) {
-        self.show_modal = false;
+        if self.search_mode {
+            self.search_mode = false;
+            self.search_query.clear();
+            self.update_filtered_processes();
+        } else {
+            self.show_modal = false;
+            self.modal_type = ModalType::None;
+        }
+    }
+    
+    pub fn is_search_mode(&self) -> bool {
+        self.search_mode
+    }
+    
+    pub fn search_input(&mut self, c: char) {
+        self.search_query.push(c);
+        self.update_filtered_processes();
+        self.selected_process_index = 0;
+    }
+    
+    pub fn search_backspace(&mut self) {
+        self.search_query.pop();
+        self.update_filtered_processes();
     }
 }
 

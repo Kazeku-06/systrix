@@ -55,13 +55,17 @@ impl EventHandler {
             
             // Actions
             KeyCode::Enter => ui.show_details(),
-            KeyCode::Char('k') => ui.kill_selected_process().await?,
-            KeyCode::Char('s') => ui.suspend_selected_process().await?,
-            KeyCode::Char('r') => ui.resume_selected_process().await?,
-            KeyCode::Char('p') => ui.toggle_pause(),
-            KeyCode::Char('t') => ui.toggle_theme(),
-            KeyCode::Char('/') => ui.start_search(),
+            KeyCode::Char('k') if !ui.is_search_mode() => ui.kill_selected_process().await?,
+            KeyCode::Char('s') if !ui.is_search_mode() => ui.suspend_selected_process().await?,
+            KeyCode::Char('r') if !ui.is_search_mode() => ui.resume_selected_process().await?,
+            KeyCode::Char('p') if !ui.is_search_mode() => ui.toggle_pause(),
+            KeyCode::Char('t') if !ui.is_search_mode() => ui.toggle_theme(),
+            KeyCode::Char('/') if !ui.is_search_mode() => ui.start_search(),
             KeyCode::Esc => ui.cancel_action(),
+            
+            // Search mode
+            KeyCode::Char(c) if ui.is_search_mode() => ui.search_input(c),
+            KeyCode::Backspace if ui.is_search_mode() => ui.search_backspace(),
             
             _ => {}
         }
