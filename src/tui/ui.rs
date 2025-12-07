@@ -335,7 +335,7 @@ impl Ui {
     pub fn page_up(&mut self) {
         match self.active_panel {
             1 => {
-                // Processes panel
+                // Processes panel - use filtered list
                 if self.selected_process_index >= 10 {
                     self.selected_process_index -= 10;
                 } else {
@@ -353,9 +353,14 @@ impl Ui {
     pub fn page_down(&mut self) {
         match self.active_panel {
             1 => {
-                // Processes panel
-                self.selected_process_index = (self.selected_process_index + 10)
-                    .min(self.process_data.len().saturating_sub(1));
+                // Processes panel - use filtered list length
+                let max_index = if self.filtered_process_indices.is_empty() {
+                    0
+                } else {
+                    self.filtered_process_indices.len().saturating_sub(1)
+                };
+                
+                self.selected_process_index = (self.selected_process_index + 10).min(max_index);
             }
             4 => {
                 // Settings panel - jump to last category
@@ -381,7 +386,14 @@ impl Ui {
     pub fn scroll_to_bottom(&mut self) {
         match self.active_panel {
             1 => {
-                self.selected_process_index = self.process_data.len().saturating_sub(1);
+                // Processes panel - use filtered list length
+                let max_index = if self.filtered_process_indices.is_empty() {
+                    0
+                } else {
+                    self.filtered_process_indices.len().saturating_sub(1)
+                };
+                
+                self.selected_process_index = max_index;
             }
             4 => {
                 self.settings_state.selected_category = 4;

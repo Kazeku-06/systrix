@@ -7,8 +7,10 @@ The Settings panel (press `5` in TUI) provides comprehensive configuration optio
 ## Navigation
 
 - **↑↓ Arrow Keys** - Navigate between categories
-- **1-5 Number Keys** - Jump to specific category
-- **ESC** - Return to previous panel
+- **PageUp/PageDown** - Jump to first/last category
+- **Home/End** - Jump to first/last category
+- **1-5 Number Keys** - Switch to different panel (Overview, Processes, etc.)
+- **ESC** - Close any open modal
 
 ## Categories
 

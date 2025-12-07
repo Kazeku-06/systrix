@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🔍 Real-time process filtering as you type
 - 📝 Process detail modal shows full executable path, threads, disk I/O
 - 🎯 Settings navigation with arrow keys
+- ⌨️ Number keys (1-5) in Settings panel to jump to categories
+- ⌨️ PageUp/PageDown, Home/End support in all panels
 
 ### Changed
 - 🎨 Improved Processes panel with search indicator
@@ -30,11 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📊 Network panel now shows per-interface statistics
 - 📊 Disk panel shows filesystem types and mount points
 - 🎨 Settings panel completely redesigned with categories
+- ⚡ Improved scroll behavior to work with filtered process lists
 
 ### Fixed
 - 🐛 Fixed process selection with filtered results
-- 🐛 Fixed scroll behavior in process list
+- 🐛 Fixed scroll behavior in process list (now works with filtered results)
+- 🐛 Fixed arrow key navigation in Processes and Settings panels
 - 🐛 Fixed terminal restoration on exit
+- 🐛 Fixed PageUp/PageDown to respect filtered process list
+- 🐛 Fixed number keys (1-5) to always switch panels, not Settings categories
 
 ## [0.1.0] - 2025-12-05
 

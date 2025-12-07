@@ -37,42 +37,12 @@ impl EventHandler {
                 return Ok(true);
             }
             
-            // Panel navigation (or settings category if in settings panel)
-            KeyCode::Char('1') => {
-                if ui.is_in_settings_panel() {
-                    ui.set_settings_category(0);
-                } else {
-                    ui.set_active_panel(0);
-                }
-            },
-            KeyCode::Char('2') => {
-                if ui.is_in_settings_panel() {
-                    ui.set_settings_category(1);
-                } else {
-                    ui.set_active_panel(1);
-                }
-            },
-            KeyCode::Char('3') => {
-                if ui.is_in_settings_panel() {
-                    ui.set_settings_category(2);
-                } else {
-                    ui.set_active_panel(2);
-                }
-            },
-            KeyCode::Char('4') => {
-                if ui.is_in_settings_panel() {
-                    ui.set_settings_category(3);
-                } else {
-                    ui.set_active_panel(3);
-                }
-            },
-            KeyCode::Char('5') => {
-                if ui.is_in_settings_panel() {
-                    ui.set_settings_category(4);
-                } else {
-                    ui.set_active_panel(4);
-                }
-            },
+            // Panel navigation - always switch panels with number keys
+            KeyCode::Char('1') => ui.set_active_panel(0),
+            KeyCode::Char('2') => ui.set_active_panel(1),
+            KeyCode::Char('3') => ui.set_active_panel(2),
+            KeyCode::Char('4') => ui.set_active_panel(3),
+            KeyCode::Char('5') => ui.set_active_panel(4),
             KeyCode::Tab => ui.next_panel(),
             
             // List navigation
