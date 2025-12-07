@@ -18,6 +18,7 @@ pub struct CpuSnapshot {
     pub load_average: (f64, f64, f64),
     pub uptime: u64,
     pub os_name: String,
+    pub hostname: String,
 }
 
 pub async fn get_cpu_snapshot(system: &Arc<Mutex<System>>) -> Result<CpuSnapshot> {
@@ -55,6 +56,8 @@ pub async fn get_cpu_snapshot(system: &Arc<Mutex<System>>) -> Result<CpuSnapshot
         System::os_version().unwrap_or_else(|| "".to_string())
     );
     
+    let hostname = System::host_name().unwrap_or_else(|| "Unknown".to_string());
+    
     Ok(CpuSnapshot {
         model,
         physical_cores,
@@ -65,5 +68,6 @@ pub async fn get_cpu_snapshot(system: &Arc<Mutex<System>>) -> Result<CpuSnapshot
         load_average: (load_average.one, load_average.five, load_average.fifteen),
         uptime,
         os_name,
+        hostname,
     })
 }

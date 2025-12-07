@@ -124,24 +124,32 @@ pub fn render(
     
     if let Some(cpu) = cpu_data {
         details_lines.push(Line::from(vec![
-            Span::styled("CPU Model: ", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(&cpu.model),
+            Span::styled("Device: ", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(&cpu.hostname),
         ]));
         details_lines.push(Line::from(vec![
-            Span::styled("Cores: ", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(format!("{} physical, {} logical", cpu.physical_cores, cpu.logical_cores)),
-        ]));
-        details_lines.push(Line::from(vec![
-            Span::styled("Frequency: ", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(format!("{:.0} MHz", cpu.frequency)),
+            Span::styled("OS: ", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(&cpu.os_name),
         ]));
         details_lines.push(Line::from(vec![
             Span::styled("Uptime: ", Style::default().add_modifier(Modifier::BOLD)),
             Span::raw(utils::format_duration(cpu.uptime)),
         ]));
+        details_lines.push(Line::from(""));
         details_lines.push(Line::from(vec![
-            Span::styled("OS: ", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(&cpu.os_name),
+            Span::styled("CPU Model: ", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(&cpu.model),
+        ]));
+        details_lines.push(Line::from(vec![
+            Span::styled("Cores: ", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(format!(
+                "{} physical, {} logical",
+                cpu.physical_cores, cpu.logical_cores
+            )),
+        ]));
+        details_lines.push(Line::from(vec![
+            Span::styled("Frequency: ", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(format!("{:.0} MHz", cpu.frequency)),
         ]));
     }
     

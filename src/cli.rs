@@ -113,6 +113,11 @@ async fn cmd_info() -> Result<()> {
     println!("║                    SYSTRIX - System Info                 ║");
     println!("╚══════════════════════════════════════════════════════════╝");
     println!();
+    println!("System:");
+    println!("  Device: {}", cpu.hostname);
+    println!("  OS: {}", cpu.os_name);
+    println!("  Uptime: {}", utils::format_duration(cpu.uptime));
+    println!();
     println!("CPU:");
     println!("  Model: {}", cpu.model);
     println!("  Cores: {} physical, {} logical", cpu.physical_cores, cpu.logical_cores);
@@ -128,10 +133,6 @@ async fn cmd_info() -> Result<()> {
     println!("  Total: {}", utils::format_bytes(disk.total));
     println!("  Used: {} ({:.1}%)", utils::format_bytes(disk.used), disk.usage_percent);
     println!("  Available: {}", utils::format_bytes(disk.available));
-    println!();
-    println!("System:");
-    println!("  OS: {}", cpu.os_name);
-    println!("  Uptime: {}", utils::format_duration(cpu.uptime));
     
     Ok(())
 }
