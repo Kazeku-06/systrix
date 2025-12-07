@@ -103,4 +103,126 @@ cargo build --release
 .\target\release\systrix.exe tui
 ```
 
-### Basic C
+### Basic Commands
+
+```bash
+# System info
+.\target\release\systrix.exe info
+
+# Process list
+.\target\release\systrix.exe ps
+
+# Network stats
+.\target\release\systrix.exe net
+
+# Disk usage
+.\target\release\systrix.exe disk
+
+# Interactive TUI
+.\target\release\systrix.exe tui
+```
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `1-5` | Switch panels |
+| `↑↓` | Navigate |
+| `/` | Search processes |
+| `Enter` | Show details |
+| `k` | Kill process |
+| `p` | Pause/Resume |
+| `t` | Toggle theme |
+| `q` | Quit |
+
+---
+
+## What's Coming Next
+
+### Planned Features (v0.3.0+)
+
+**High Priority:**
+- [ ] GPU monitoring (NVIDIA/AMD)
+- [ ] System logs viewer
+- [ ] Performance graphs with history
+- [ ] Export data (CSV/JSON)
+
+**Medium Priority:**
+- [ ] Custom alerts and notifications
+- [ ] Process suspend/resume
+- [ ] Remote monitoring agent
+- [ ] Plugin system activation
+- [ ] Configuration UI
+
+**Community Requests:**
+- [ ] Docker container monitoring
+- [ ] Temperature sensors
+- [ ] Fan speed monitoring
+- [ ] Custom themes editor
+- [ ] Multi-language support
+
+---
+
+## Recent Changes
+
+### December 7, 2025
+- ✅ Added battery monitoring feature
+- ✅ Fixed Settings panel navigation
+- ✅ Updated documentation
+
+### December 6, 2025
+- ✅ Released v0.2.0
+- ✅ Complete Network and Disk panels
+- ✅ Process search and details
+- ✅ Advanced Settings panel
+
+### December 5, 2025
+- ✅ Released v0.1.0
+- ✅ Initial CLI and TUI implementation
+- ✅ Basic monitoring features
+
+---
+
+## Documentation
+
+### User Guides
+- [README.md](README.md) - Main overview
+- [QUICKSTART.md](QUICKSTART.md) - Quick start guide
+- [INSTALLATION.md](INSTALLATION.md) - Installation instructions
+- [RUNNING.md](RUNNING.md) - Running and PATH setup
+- [EXAMPLES.md](EXAMPLES.md) - Usage examples
+
+### Feature Guides
+- [BATTERY_MONITORING.md](BATTERY_MONITORING.md) - Battery feature guide
+- [SETTINGS_PANEL_GUIDE.md](SETTINGS_PANEL_GUIDE.md) - Settings panel guide
+
+### Technical Docs
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Technical architecture
+- [BUILD.md](BUILD.md) - Build instructions
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [CHANGELOG.md](CHANGELOG.md) - Version history
+
+---
+
+## Support
+
+- **Repository**: https://github.com/Kazeku-06/systrix
+- **Issues**: https://github.com/Kazeku-06/systrix/issues
+- **Clone**: `git clone https://github.com/Kazeku-06/systrix.git`
+
+---
+
+## Stats
+
+- **Version**: 0.2.0 (+ battery feature)
+- **Lines of Code**: ~5,000+
+- **Files**: 40+
+- **Platforms**: Windows, Linux, macOS
+- **Language**: Rust 🦀
+- **License**: MIT
+
+---
+
+**Terima kasih telah menggunakan Systrix! 🚀**
+
+Jika ada pertanyaan atau saran, silakan buat issue di GitHub repository.

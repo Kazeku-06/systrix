@@ -61,54 +61,81 @@ async fn get_battery_info_windows() -> Result<BatteryInfo> {
     
     // Use WMIC to get battery info
     let output = Command::new("wmic")
-        .args(&["path", "Win32_Battery", "get", "BatteryStatus,EstimatedChargeRemaining,EstimatedRunTime", "/format:csv"])
+        .args(&[
+            "path",
+            "Win32_Battery",
+            "get",
+            "BatteryStatus,EstimatedChargeRemaining,EstimatedRunTime",
+            "/format:csv",
+        ])
         .output()?;
     
     let output_str = String::from_utf8_lossy(&output.stdout);
-    let lines: Vec<&str> = output_str.lines().collect();
     
-    // Check if battery exists
-    if lines.len() < 3 {
+    // Filter out empty lines and trim whitespace
+    let lines: Vec<&str> = output_str
+        .lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
+        .collect();
+    
+    // Need at least 2 lines: header + data
+    if lines.len() < 2 {
         return Ok(BatteryInfo::default());
     }
     
-    // Parse CSV output (skip header and node name)
-    if let Some(data_line) = lines.get(2) {
-        let parts: Vec<&str> = data_line.split(',').collect();
+    // Find the data line (skip header)
+    // Header: Node,BatteryStatus,EstimatedChargeRemaining,EstimatedRunTime
+    // Data: COMPUTERNAME,1,80,129
+    for line in lines.iter().skip(1) {
+        // Skip if it's still a header line
+        if line.contains("Node") || line.contains("BatteryStatus") {
+            continue;
+        }
         
-        if parts.len() >= 3 {
-            let battery_status = parts[0].trim().parse::<u32>().unwrap_or(0);
-            let percentage = parts[1].trim().parse::<f32>().unwrap_or(0.0);
-            let time_remaining = parts[2].trim().parse::<u64>().ok();
-            
-            // Battery status codes:
-            // 1 = Discharging, 2 = AC, 3 = Fully Charged, 4 = Low, 5 = Critical
-            let is_charging = battery_status == 2;
-            let is_plugged = battery_status == 2 || battery_status == 3;
-            
-            let status = match battery_status {
-                1 => "Discharging",
-                2 => "Charging",
-                3 => "Fully Charged",
-                4 => "Low",
-                5 => "Critical",
-                _ => "Unknown",
-            }.to_string();
-            
-            return Ok(BatteryInfo {
-                is_present: true,
-                percentage,
-                is_charging,
-                is_plugged,
-                time_remaining: time_remaining.filter(|&t| t != 71582788), // Filter invalid values
-                health: 100.0, // Windows doesn't easily provide this
-                status,
-                technology: "Li-ion".to_string(), // Assume Li-ion
-                vendor: "Unknown".to_string(),
-            });
+        let parts: Vec<&str> = line.split(',').map(|p| p.trim()).collect();
+        
+        // Need at least 4 parts: Node, Status, Percentage, Time
+        if parts.len() >= 4 {
+            // Try to parse battery status (should be a number 1-5)
+            if let Ok(battery_status) = parts[1].parse::<u32>() {
+                // Parse percentage
+                let percentage = parts[2].parse::<f32>().unwrap_or(0.0);
+                
+                // Parse time remaining (in minutes)
+                let time_remaining = parts[3].parse::<u64>().ok();
+                
+                // Battery status codes:
+                // 1 = Discharging, 2 = AC, 3 = Fully Charged, 4 = Low, 5 = Critical
+                let is_charging = battery_status == 2;
+                let is_plugged = battery_status == 2 || battery_status == 3;
+                
+                let status = match battery_status {
+                    1 => "Discharging",
+                    2 => "Charging",
+                    3 => "Fully Charged",
+                    4 => "Low",
+                    5 => "Critical",
+                    _ => "Unknown",
+                }
+                .to_string();
+                
+                return Ok(BatteryInfo {
+                    is_present: true,
+                    percentage,
+                    is_charging,
+                    is_plugged,
+                    time_remaining: time_remaining.filter(|&t| t != 71582788), // Filter invalid values
+                    health: 100.0,                      // Windows doesn't easily provide this
+                    status,
+                    technology: "Li-ion".to_string(), // Assume Li-ion
+                    vendor: "Unknown".to_string(),
+                });
+            }
         }
     }
     
+    // No valid battery data found
     Ok(BatteryInfo::default())
 }
 
