@@ -237,7 +237,7 @@ impl Ui {
 
 
     fn render_footer(&self, f: &mut Frame, area: Rect) {
-        let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [p]Pause [t]Theme ";
+        let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [s]Suspend [r]Resume [e]Export [p]Pause [t]Theme ";
         let footer = Paragraph::new(footer_text)
             .style(Style::default().fg(Color::DarkGray));
         f.render_widget(footer, area);
@@ -491,13 +491,120 @@ impl Ui {
     }
 
     pub async fn suspend_selected_process(&mut self) -> Result<()> {
-        // TODO: Implement suspend
+        if self.active_panel == 1 && !self.filtered_process_indices.is_empty() {
+            let actual_index = self.filtered_process_indices.get(self.selected_process_index);
+            if let Some(&idx) = actual_index {
+                if let Some(process) = self.process_data.get(idx) {
+                    let pid = process.pid;
+                    let name = process.name.clone();
+                    
+                    // Try to suspend
+                    match crate::monitor::process::suspend_process(&self.get_system(), pid).await {
+                        Ok(_) => {
+                            self.modal_message = format!(
+                                "╔════════════════════════════════════════════════╗\n\
+                                 ║              ✅ SUCCESS                        ║\n\
+                                 ╚════════════════════════════════════════════════╝\n\
+                                 \n\
+                                 Process {} (PID: {}) has been suspended!\n\
+                                 \n\
+                                 The process is now paused and will not\n\
+                                 consume CPU resources until resumed.\n\
+                                 \n\
+                                 💡 Tip: Press 'R' to resume this process\n\
+                                 \n\
+                                 ┌──────────────────────────────────────────────┐\n\
+                                 │  Press [ESC] to close this message           │\n\
+                                 └──────────────────────────────────────────────┘",
+                                name, pid
+                            );
+                            self.modal_type = ModalType::ProcessDetail;
+                            self.show_modal = true;
+                        }
+                        Err(e) => {
+                            self.modal_message = format!(
+                                "╔════════════════════════════════════════════════╗\n\
+                                 ║              ❌ ERROR                          ║\n\
+                                 ╚════════════════════════════════════════════════╝\n\
+                                 \n\
+                                 Failed to suspend process {} (PID: {})!\n\
+                                 \n\
+                                 Error Details:\n\
+                                 {}\n\
+                                 \n\
+                                 ┌──────────────────────────────────────────────┐\n\
+                                 │  Press [ESC] to close this message           │\n\
+                                 └──────────────────────────────────────────────┘",
+                                name, pid, e
+                            );
+                            self.modal_type = ModalType::ProcessDetail;
+                            self.show_modal = true;
+                        }
+                    }
+                }
+            }
+        }
         Ok(())
     }
 
     pub async fn resume_selected_process(&mut self) -> Result<()> {
-        // TODO: Implement resume
+        if self.active_panel == 1 && !self.filtered_process_indices.is_empty() {
+            let actual_index = self.filtered_process_indices.get(self.selected_process_index);
+            if let Some(&idx) = actual_index {
+                if let Some(process) = self.process_data.get(idx) {
+                    let pid = process.pid;
+                    let name = process.name.clone();
+                    
+                    // Try to resume
+                    match crate::monitor::process::resume_process(&self.get_system(), pid).await {
+                        Ok(_) => {
+                            self.modal_message = format!(
+                                "╔════════════════════════════════════════════════╗\n\
+                                 ║              ✅ SUCCESS                        ║\n\
+                                 ╚════════════════════════════════════════════════╝\n\
+                                 \n\
+                                 Process {} (PID: {}) has been resumed!\n\
+                                 \n\
+                                 The process is now running again and will\n\
+                                 continue normal execution.\n\
+                                 \n\
+                                 ┌──────────────────────────────────────────────┐\n\
+                                 │  Press [ESC] to close this message           │\n\
+                                 └──────────────────────────────────────────────┘",
+                                name, pid
+                            );
+                            self.modal_type = ModalType::ProcessDetail;
+                            self.show_modal = true;
+                        }
+                        Err(e) => {
+                            self.modal_message = format!(
+                                "╔════════════════════════════════════════════════╗\n\
+                                 ║              ❌ ERROR                          ║\n\
+                                 ╚════════════════════════════════════════════════╝\n\
+                                 \n\
+                                 Failed to resume process {} (PID: {})!\n\
+                                 \n\
+                                 Error Details:\n\
+                                 {}\n\
+                                 \n\
+                                 ┌──────────────────────────────────────────────┐\n\
+                                 │  Press [ESC] to close this message           │\n\
+                                 └──────────────────────────────────────────────┘",
+                                name, pid, e
+                            );
+                            self.modal_type = ModalType::ProcessDetail;
+                            self.show_modal = true;
+                        }
+                    }
+                }
+            }
+        }
         Ok(())
+    }
+    
+    fn get_system(&self) -> std::sync::Arc<tokio::sync::Mutex<sysinfo::System>> {
+        // Create a new system instance for process operations
+        std::sync::Arc::new(tokio::sync::Mutex::new(sysinfo::System::new_all()))
     }
 
     pub fn toggle_pause(&mut self) {
@@ -510,6 +617,75 @@ impl Ui {
             Theme::Light => Theme::Dracula,
             Theme::Dracula => Theme::Dark,
         };
+    }
+    
+    pub fn export_data(&mut self, format: crate::export::ExportFormat) {
+        match crate::export::export_snapshot(
+            &self.cpu_data,
+            &self.memory_data,
+            &self.disk_data,
+            &self.network_data,
+            &self.battery_data,
+            &self.process_data,
+            &self.disk_list,
+            format,
+            None,
+        ) {
+            Ok(filename) => {
+                self.modal_message = format!(
+                    "╔════════════════════════════════════════════════╗\n\
+                     ║              ✅ EXPORT SUCCESS                 ║\n\
+                     ╚════════════════════════════════════════════════╝\n\
+                     \n\
+                     Data exported successfully!\n\
+                     \n\
+                     📁 File: {}\n\
+                     📊 Format: {}\n\
+                     \n\
+                     The file contains:\n\
+                     • System information\n\
+                     • CPU, Memory, Disk, Network stats\n\
+                     • Battery status (if available)\n\
+                     • Process list ({} processes)\n\
+                     \n\
+                     ┌──────────────────────────────────────────────┐\n\
+                     │  Press [ESC] to close this message           │\n\
+                     └──────────────────────────────────────────────┘",
+                    filename,
+                    match format {
+                        crate::export::ExportFormat::Csv => "CSV",
+                        crate::export::ExportFormat::Json => "JSON",
+                    },
+                    self.process_data.len()
+                );
+                self.modal_type = ModalType::ProcessDetail;
+                self.show_modal = true;
+            }
+            Err(e) => {
+                self.modal_message = format!(
+                    "╔════════════════════════════════════════════════╗\n\
+                     ║              ❌ EXPORT ERROR                   ║\n\
+                     ╚════════════════════════════════════════════════╝\n\
+                     \n\
+                     Failed to export data!\n\
+                     \n\
+                     Error Details:\n\
+                     {}\n\
+                     \n\
+                     Possible reasons:\n\
+                     • No write permission in current directory\n\
+                     • Disk full\n\
+                     • File already open\n\
+                     \n\
+                     ┌──────────────────────────────────────────────┐\n\
+                     │  Press [ESC] to close this message           │\n\
+                     └──────────────────────────────────────────────┘",
+                    e
+                );
+                self.modal_type = ModalType::ProcessDetail;
+                self.show_modal = true;
+            }
+        }
     }
 
     pub fn start_search(&mut self) {

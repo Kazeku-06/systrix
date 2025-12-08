@@ -71,6 +71,25 @@ pub enum Commands {
         output: PathBuf,
     },
     
+    /// Export system data
+    Export {
+        /// Export format: csv, json
+        #[arg(long, default_value = "json")]
+        format: String,
+        
+        /// Output file path (optional, auto-generated if not provided)
+        #[arg(long)]
+        output: Option<PathBuf>,
+        
+        /// Include process list
+        #[arg(long, default_value = "true")]
+        processes: bool,
+        
+        /// Maximum number of processes to include
+        #[arg(long, default_value = "100")]
+        process_limit: usize,
+    },
+    
     /// Display version information
     Version,
 }
@@ -86,6 +105,9 @@ pub async fn execute(cli: Cli) -> Result<()> {
         #[cfg(feature = "tui")]
         Some(Commands::Tui { refresh_interval }) => cmd_tui(refresh_interval).await,
         Some(Commands::Report { output }) => cmd_report(output).await,
+        Some(Commands::Export { format, output, processes, process_limit }) => {
+            cmd_export(format, output, processes, process_limit).await
+        },
         Some(Commands::Version) => cmd_version(),
         None => {
             // Default: launch TUI if available, otherwise show help
@@ -263,27 +285,64 @@ async fn cmd_tui(refresh_interval: u64) -> Result<()> {
 }
 
 async fn cmd_report(output: PathBuf) -> Result<()> {
-    use serde_json::json;
-    use std::fs;
+    // Legacy report command - use new export functionality
+    cmd_export("json".to_string(), Some(output), true, 50).await
+}
+
+async fn cmd_export(format: String, output: Option<PathBuf>, include_processes: bool, process_limit: usize) -> Result<()> {
+    use crate::export::{export_snapshot, ExportFormat};
     
     let backend = SysinfoBackend::new();
-    let cpu = backend.cpu_snapshot().await?;
-    let memory = backend.memory_snapshot().await?;
-    let disk = backend.disk_snapshot().await?;
-    let networks = backend.network_snapshot().await?;
-    let processes = backend.process_list(None, "cpu", 50).await?;
+    let cpu = Some(backend.cpu_snapshot().await?);
+    let memory = Some(backend.memory_snapshot().await?);
+    let disk = Some(backend.disk_snapshot().await?);
+    let network = Some(backend.network_snapshot().await?);
+    let battery = crate::monitor::battery::get_battery_info().await.ok();
+    let disk_list = backend.disk_list().await?;
     
-    let report = json!({
-        "timestamp": chrono::Utc::now().to_rfc3339(),
-        "cpu": cpu,
-        "memory": memory,
-        "disk": disk,
-        "network": networks,
-        "processes": processes,
-    });
+    let processes = if include_processes {
+        backend.process_list(None, "cpu", process_limit).await?
+    } else {
+        Vec::new()
+    };
     
-    fs::write(&output, serde_json::to_string_pretty(&report)?)?;
-    println!("✓ Report exported to: {}", output.display());
+    let export_format = match format.to_lowercase().as_str() {
+        "csv" => ExportFormat::Csv,
+        "json" => ExportFormat::Json,
+        _ => {
+            println!("❌ Invalid format '{}'. Supported formats: csv, json", format);
+            return Ok(());
+        }
+    };
+    
+    let output_path = output.map(|p| p.to_string_lossy().to_string());
+    
+    match export_snapshot(
+        &cpu,
+        &memory,
+        &disk,
+        &network,
+        &battery,
+        &processes,
+        &disk_list,
+        export_format,
+        output_path.as_deref(),
+    ) {
+        Ok(filename) => {
+            println!("✅ Data exported successfully!");
+            println!("📁 File: {}", filename);
+            println!("📊 Format: {}", format.to_uppercase());
+            println!("🔢 Processes: {}", processes.len());
+            if let Some(battery) = &battery {
+                if battery.is_present {
+                    println!("🔋 Battery: Included");
+                }
+            }
+        }
+        Err(e) => {
+            println!("❌ Export failed: {}", e);
+        }
+    }
     
     Ok(())
 }

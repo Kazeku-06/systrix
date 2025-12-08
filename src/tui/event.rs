@@ -80,6 +80,12 @@ impl EventHandler {
             }
             KeyCode::Char('p') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_pause(),
             KeyCode::Char('t') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_theme(),
+            KeyCode::Char('e') if !ui.is_search_mode() && !ui.is_modal_open() => {
+                ui.export_data(crate::export::ExportFormat::Json)
+            }
+            KeyCode::Char('c') if !ui.is_search_mode() && !ui.is_modal_open() && key.modifiers.contains(KeyModifiers::CONTROL) => {
+                ui.export_data(crate::export::ExportFormat::Csv)
+            }
             KeyCode::Char('/') if !ui.is_search_mode() && !ui.is_modal_open() => ui.start_search(),
             KeyCode::Esc => ui.cancel_action(),
             

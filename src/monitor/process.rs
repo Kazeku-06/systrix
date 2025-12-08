@@ -97,56 +97,101 @@ pub async fn kill_process(
     }
 }
 
-#[allow(dead_code)]
 pub async fn suspend_process(
     system: &Arc<Mutex<System>>,
     pid: u32,
 ) -> Result<()> {
-    let sys = system.lock().await;
-    
-    let pid = Pid::from_u32(pid);
-    
-    let _process = sys.process(pid)
-        .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid.as_u32()))?;
-    
-    #[cfg(unix)]
+    #[cfg(target_os = "windows")]
     {
-        if _process.kill_with(Signal::Stop).is_some() {
-            Ok(())
-        } else {
-            anyhow::bail!("Failed to suspend process {}", pid.as_u32())
+        use std::process::Command;
+        
+        // Use pssuspend from Windows or PowerShell
+        let output = Command::new("powershell")
+            .args(&[
+                "-Command",
+                &format!("(Get-Process -Id {}).Suspend()", pid),
+            ])
+            .output();
+        
+        match output {
+            Ok(out) if out.status.success() => Ok(()),
+            _ => {
+                // Fallback: Try using NtSuspendProcess via external tool
+                // For now, return error with helpful message
+                anyhow::bail!(
+                    "Process suspend requires additional tools on Windows.\n\
+                     Consider using Process Explorer or installing PSTools."
+                )
+            }
         }
     }
     
-    #[cfg(not(unix))]
+    #[cfg(unix)]
     {
+        let sys = system.lock().await;
+        let pid = Pid::from_u32(pid);
+        
+        let _process = sys.process(pid)
+            .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid))?;
+        
+        if _process.kill_with(Signal::Stop).is_some() {
+            Ok(())
+        } else {
+            anyhow::bail!("Failed to suspend process {}", pid)
+        }
+    }
+    
+    #[cfg(not(any(unix, target_os = "windows")))]
+    {
+        let _ = system;
         anyhow::bail!("Suspend not supported on this platform")
     }
 }
 
-#[allow(dead_code)]
 pub async fn resume_process(
     system: &Arc<Mutex<System>>,
     pid: u32,
 ) -> Result<()> {
-    let sys = system.lock().await;
-    
-    let pid = Pid::from_u32(pid);
-    
-    let _process = sys.process(pid)
-        .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid.as_u32()))?;
-    
-    #[cfg(unix)]
+    #[cfg(target_os = "windows")]
     {
-        if _process.kill_with(Signal::Continue).is_some() {
-            Ok(())
-        } else {
-            anyhow::bail!("Failed to resume process {}", pid.as_u32())
+        use std::process::Command;
+        
+        let output = Command::new("powershell")
+            .args(&[
+                "-Command",
+                &format!("(Get-Process -Id {}).Resume()", pid),
+            ])
+            .output();
+        
+        match output {
+            Ok(out) if out.status.success() => Ok(()),
+            _ => {
+                anyhow::bail!(
+                    "Process resume requires additional tools on Windows.\n\
+                     Consider using Process Explorer or installing PSTools."
+                )
+            }
         }
     }
     
-    #[cfg(not(unix))]
+    #[cfg(unix)]
     {
+        let sys = system.lock().await;
+        let pid = Pid::from_u32(pid);
+        
+        let _process = sys.process(pid)
+            .ok_or_else(|| anyhow::anyhow!("Process {} not found", pid))?;
+        
+        if _process.kill_with(Signal::Continue).is_some() {
+            Ok(())
+        } else {
+            anyhow::bail!("Failed to resume process {}", pid)
+        }
+    }
+    
+    #[cfg(not(any(unix, target_os = "windows")))]
+    {
+        let _ = system;
         anyhow::bail!("Resume not supported on this platform")
     }
 }
