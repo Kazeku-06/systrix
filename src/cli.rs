@@ -329,14 +329,27 @@ async fn cmd_export(format: String, output: Option<PathBuf>, include_processes: 
         output_path.as_deref(),
     ) {
         Ok(filename) => {
+            // Get full path
+            let full_path = std::env::current_dir()
+                .map(|p| p.join(&filename).to_string_lossy().to_string())
+                .unwrap_or_else(|_| filename.clone());
+            
             println!("✅ Data exported successfully!");
-            println!("📁 File: {}", filename);
+            println!();
+            println!("📁 Filename: {}", filename);
+            println!("📂 Location: {}", full_path);
             println!("📊 Format: {}", format.to_uppercase());
             println!("🔢 Processes: {}", processes.len());
             if let Some(battery) = &battery {
                 if battery.is_present {
                     println!("🔋 Battery: Included");
                 }
+            }
+            println!();
+            println!("💡 Tip: Open with:");
+            match export_format {
+                ExportFormat::Csv => println!("   Excel, LibreOffice, or any spreadsheet app"),
+                ExportFormat::Json => println!("   Text editor, browser, or JSON viewer"),
             }
         }
         Err(e) => {

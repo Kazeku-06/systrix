@@ -632,6 +632,11 @@ impl Ui {
             None,
         ) {
             Ok(filename) => {
+                // Get full path
+                let full_path = std::env::current_dir()
+                    .map(|p| p.join(&filename).to_string_lossy().to_string())
+                    .unwrap_or_else(|_| filename.clone());
+                
                 self.modal_message = format!(
                     "╔════════════════════════════════════════════════╗\n\
                      ║              ✅ EXPORT SUCCESS                 ║\n\
@@ -639,7 +644,8 @@ impl Ui {
                      \n\
                      Data exported successfully!\n\
                      \n\
-                     📁 File: {}\n\
+                     📁 Filename: {}\n\
+                     📂 Location: {}\n\
                      📊 Format: {}\n\
                      \n\
                      The file contains:\n\
@@ -648,10 +654,15 @@ impl Ui {
                      • Battery status (if available)\n\
                      • Process list ({} processes)\n\
                      \n\
+                     💡 Tip: You can open this file with:\n\
+                     • Excel/LibreOffice (CSV)\n\
+                     • Text editor/Browser (JSON)\n\
+                     \n\
                      ┌──────────────────────────────────────────────┐\n\
                      │  Press [ESC] to close this message           │\n\
                      └──────────────────────────────────────────────┘",
                     filename,
+                    full_path,
                     match format {
                         crate::export::ExportFormat::Csv => "CSV",
                         crate::export::ExportFormat::Json => "JSON",
