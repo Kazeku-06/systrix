@@ -64,6 +64,7 @@ pub struct Ui {
     search_mode: bool,
     search_query: String,
     settings_state: SettingsState,
+    pending_kill_pid: Option<u32>,
     
     // Data
     cpu_data: Option<CpuSnapshot>,
@@ -96,6 +97,7 @@ impl Ui {
                 show_graphs: true,
                 show_per_core_cpu: true,
             },
+            pending_kill_pid: None,
             cpu_data: None,
             memory_data: None,
             disk_data: None,
@@ -242,27 +244,28 @@ impl Ui {
     }
 
     fn render_modal(&self, f: &mut Frame, area: Rect) {
-        let title = match self.modal_type {
-            ModalType::KillConfirm => "Confirmation",
-            ModalType::ProcessDetail => "Process Details",
-            ModalType::None => "Modal",
+        use ratatui::widgets::Clear;
+        
+        let (title, width, height, border_color) = match self.modal_type {
+            ModalType::KillConfirm => ("⚠️  Kill Process", 70, 70, Color::Red),
+            ModalType::ProcessDetail => ("ℹ️  Process Details", 70, 60, Color::Cyan),
+            ModalType::None => ("Modal", 60, 20, Color::White),
         };
         
-        let (width, height) = match self.modal_type {
-            ModalType::ProcessDetail => (70, 60),
-            _ => (60, 20),
-        };
+        let modal_area = centered_rect(width, height, area);
+        
+        // Clear the background to make modal non-transparent
+        f.render_widget(Clear, modal_area);
         
         let block = Block::default()
             .title(title)
             .borders(Borders::ALL)
+            .border_style(Style::default().fg(border_color))
             .style(Style::default().bg(Color::Black));
-        
-        let modal_area = centered_rect(width, height, area);
         
         let text = Paragraph::new(self.modal_message.as_str())
             .block(block)
-            .style(Style::default().fg(Color::White))
+            .style(Style::default().fg(Color::White).bg(Color::Black))
             .wrap(ratatui::widgets::Wrap { trim: true });
         
         f.render_widget(text, modal_area);
@@ -446,9 +449,38 @@ impl Ui {
             let actual_index = self.filtered_process_indices.get(self.selected_process_index);
             if let Some(&idx) = actual_index {
                 if let Some(process) = self.process_data.get(idx) {
+                    self.pending_kill_pid = Some(process.pid);
                     self.modal_message = format!(
-                        "Kill process {} (PID {})?\n\nPress 'y' to confirm, ESC to cancel", 
-                        process.name, process.pid
+                        "╔════════════════════════════════════════════════╗\n\
+                         ║         ⚠️  KILL PROCESS CONFIRMATION          ║\n\
+                         ╚════════════════════════════════════════════════╝\n\
+                         \n\
+                         You are about to terminate:\n\
+                         \n\
+                         📋 Process Name:  {}\n\
+                         🔢 Process ID:    {}\n\
+                         👤 User:          {}\n\
+                         💻 CPU Usage:     {:.1}%\n\
+                         💾 Memory:        {:.1}%\n\
+                         📁 Path:          {}\n\
+                         \n\
+                         ⚠️  WARNING: This action cannot be undone!\n\
+                         ⚠️  The process will be forcefully terminated.\n\
+                         \n\
+                         ┌──────────────────────────────────────────────┐\n\
+                         │  Press [Y] to KILL the process               │\n\
+                         │  Press [N] or [ESC] to CANCEL                │\n\
+                         └──────────────────────────────────────────────┘",
+                        process.name,
+                        process.pid,
+                        process.user,
+                        process.cpu_usage,
+                        process.memory_usage,
+                        if process.exe_path.len() > 40 {
+                            format!("...{}", &process.exe_path[process.exe_path.len() - 37..])
+                        } else {
+                            process.exe_path.clone()
+                        }
                     );
                     self.modal_type = ModalType::KillConfirm;
                     self.show_modal = true;
@@ -495,7 +527,99 @@ impl Ui {
         } else {
             self.show_modal = false;
             self.modal_type = ModalType::None;
+            self.pending_kill_pid = None;
         }
+    }
+    
+    pub async fn confirm_kill(&mut self) -> Result<()> {
+        if let Some(pid) = self.pending_kill_pid {
+            // Actually kill the process
+            match self.kill_process_by_pid(pid).await {
+                Ok(_) => {
+                    self.modal_message = format!(
+                        "╔════════════════════════════════════════════════╗\n\
+                         ║              ✅ SUCCESS                        ║\n\
+                         ╚════════════════════════════════════════════════╝\n\
+                         \n\
+                         Process {} has been terminated successfully!\n\
+                         \n\
+                         The process has been forcefully killed and\n\
+                         removed from the system.\n\
+                         \n\
+                         ┌──────────────────────────────────────────────┐\n\
+                         │  Press [ESC] to close this message           │\n\
+                         └──────────────────────────────────────────────┘",
+                        pid
+                    );
+                    self.modal_type = ModalType::ProcessDetail;
+                }
+                Err(e) => {
+                    self.modal_message = format!(
+                        "╔════════════════════════════════════════════════╗\n\
+                         ║              ❌ ERROR                          ║\n\
+                         ╚════════════════════════════════════════════════╝\n\
+                         \n\
+                         Failed to kill process {}!\n\
+                         \n\
+                         Error Details:\n\
+                         {}\n\
+                         \n\
+                         Possible reasons:\n\
+                         • Insufficient permissions (try running as admin)\n\
+                         • Process already terminated\n\
+                         • System/protected process\n\
+                         \n\
+                         ┌──────────────────────────────────────────────┐\n\
+                         │  Press [ESC] to close this message           │\n\
+                         └──────────────────────────────────────────────┘",
+                        pid, e
+                    );
+                    self.modal_type = ModalType::ProcessDetail;
+                }
+            }
+            self.pending_kill_pid = None;
+        }
+        Ok(())
+    }
+    
+    async fn kill_process_by_pid(&self, pid: u32) -> Result<()> {
+        #[cfg(target_os = "windows")]
+        {
+            use std::process::Command;
+            let output = Command::new("taskkill")
+                .args(&["/PID", &pid.to_string(), "/F"])
+                .output()?;
+            
+            if output.status.success() {
+                Ok(())
+            } else {
+                let error = String::from_utf8_lossy(&output.stderr);
+                Err(anyhow::anyhow!("Failed to kill process: {}", error))
+            }
+        }
+        
+        #[cfg(not(target_os = "windows"))]
+        {
+            use std::process::Command;
+            let output = Command::new("kill")
+                .args(&["-9", &pid.to_string()])
+                .output()?;
+            
+            if output.status.success() {
+                Ok(())
+            } else {
+                let error = String::from_utf8_lossy(&output.stderr);
+                Err(anyhow::anyhow!("Failed to kill process: {}", error))
+            }
+        }
+    }
+    
+    pub fn is_modal_open(&self) -> bool {
+        self.show_modal
+    }
+    
+    pub fn is_kill_confirm_modal(&self) -> bool {
+        self.show_modal && self.modal_type == ModalType::KillConfirm
     }
     
     pub fn is_search_mode(&self) -> bool {

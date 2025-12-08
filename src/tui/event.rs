@@ -54,13 +54,33 @@ impl EventHandler {
             KeyCode::End => ui.scroll_to_bottom(),
             
             // Actions
-            KeyCode::Enter => ui.show_details(),
-            KeyCode::Char('k') if !ui.is_search_mode() => ui.kill_selected_process().await?,
-            KeyCode::Char('s') if !ui.is_search_mode() => ui.suspend_selected_process().await?,
-            KeyCode::Char('r') if !ui.is_search_mode() => ui.resume_selected_process().await?,
-            KeyCode::Char('p') if !ui.is_search_mode() => ui.toggle_pause(),
-            KeyCode::Char('t') if !ui.is_search_mode() => ui.toggle_theme(),
-            KeyCode::Char('/') if !ui.is_search_mode() => ui.start_search(),
+            KeyCode::Enter => {
+                if !ui.is_modal_open() {
+                    ui.show_details();
+                }
+            }
+            KeyCode::Char('k') if !ui.is_search_mode() && !ui.is_modal_open() => {
+                ui.kill_selected_process().await?
+            }
+            KeyCode::Char('y') | KeyCode::Char('Y') => {
+                if ui.is_kill_confirm_modal() {
+                    ui.confirm_kill().await?;
+                }
+            }
+            KeyCode::Char('n') | KeyCode::Char('N') => {
+                if ui.is_kill_confirm_modal() {
+                    ui.cancel_action();
+                }
+            }
+            KeyCode::Char('s') if !ui.is_search_mode() && !ui.is_modal_open() => {
+                ui.suspend_selected_process().await?
+            }
+            KeyCode::Char('r') if !ui.is_search_mode() && !ui.is_modal_open() => {
+                ui.resume_selected_process().await?
+            }
+            KeyCode::Char('p') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_pause(),
+            KeyCode::Char('t') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_theme(),
+            KeyCode::Char('/') if !ui.is_search_mode() && !ui.is_modal_open() => ui.start_search(),
             KeyCode::Esc => ui.cancel_action(),
             
             // Search mode
