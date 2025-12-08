@@ -1,0 +1,350 @@
+/* Systrix Export HTML Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.timestamp {
+    font-size: 1.1em;
+    opacity: 0.9;
+    margin-top: 10px;
+}
+
+.device-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 5px;
+    opacity: 0.95;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 30px;
+    background: #f8f9fa;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    color: #667eea;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 1.1em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #764ba2;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.label {
+    font-size: 1em;
+    color: #666;
+    font-weight: 500;
+}
+
+.value {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.value.green {
+    color: #28a745;
+}
+
+.value.yellow {
+    color: #ffc107;
+}
+
+.value.red {
+    color: #dc3545;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+.progress-fill.green {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.progress-fill.yellow {
+    background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.progress-fill.red {
+    background: linear-gradient(90deg, #dc3545, #c82333);
+}
+
+.detail {
+    font-size: 0.95em;
+    color: #666;
+    margin: 5px 0;
+}
+
+.details-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+table td:first-child {
+    font-weight: 600;
+    color: #667eea;
+    width: 40%;
+}
+
+table th {
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+table th:hover {
+    background: #5568d3;
+}
+
+.interfaces-table,
+.disk-table {
+    margin-top: 15px;
+}
+
+.interfaces-table td,
+.disk-table td {
+    text-align: center;
+}
+
+.interfaces-table th,
+.disk-table th {
+    text-align: center;
+}
+
+.processes-card {
+    grid-column: 1 / -1;
+    margin: 0 30px 30px 30px;
+}
+
+.table-controls {
+    margin: 20px 0;
+}
+
+#processSearch {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1em;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#processSearch:focus {
+    border-color: #764ba2;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.process-table {
+    width: 100%;
+    min-width: 800px;
+}
+
+.process-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.process-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.process-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.process-name {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.high {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.medium {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+footer {
+    background: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+footer p {
+    margin: 5px 0;
+}
+
+footer strong {
+    color: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .details-section {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .processes-card {
+        margin: 0 15px 15px 15px;
+    }
+    
+    .value {
+        font-size: 1.5em;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+    
+    .container {
+        box-shadow: none;
+    }
+    
+    .card {
+        page-break-inside: avoid;
+    }
+    
+    .process-table {
+        font-size: 0.8em;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }

@@ -86,6 +86,9 @@ impl EventHandler {
             KeyCode::Char('c') if !ui.is_search_mode() && !ui.is_modal_open() && key.modifiers.contains(KeyModifiers::CONTROL) => {
                 ui.export_data(crate::export::ExportFormat::Csv)
             }
+            KeyCode::Char('h') if !ui.is_search_mode() && !ui.is_modal_open() && key.modifiers.contains(KeyModifiers::CONTROL) => {
+                ui.export_data(crate::export::ExportFormat::Html)
+            }
             KeyCode::Char('/') if !ui.is_search_mode() && !ui.is_modal_open() => ui.start_search(),
             KeyCode::Esc => ui.cancel_action(),
             

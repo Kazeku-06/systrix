@@ -237,7 +237,7 @@ impl Ui {
 
 
     fn render_footer(&self, f: &mut Frame, area: Rect) {
-        let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [s]Suspend [r]Resume [e]Export [p]Pause [t]Theme ";
+        let footer_text = " [q]Quit [1-5]Panels [↑↓]Navigate [k]Kill [e]JSON [Ctrl+C]CSV [Ctrl+H]HTML [p]Pause [t]Theme ";
         let footer = Paragraph::new(footer_text)
             .style(Style::default().fg(Color::DarkGray));
         f.render_widget(footer, area);
@@ -657,6 +657,7 @@ impl Ui {
                      💡 Tip: You can open this file with:\n\
                      • Excel/LibreOffice (CSV)\n\
                      • Text editor/Browser (JSON)\n\
+                     • Web Browser (HTML)\n\
                      \n\
                      ┌──────────────────────────────────────────────┐\n\
                      │  Press [ESC] to close this message           │\n\
@@ -666,6 +667,7 @@ impl Ui {
                     match format {
                         crate::export::ExportFormat::Csv => "CSV",
                         crate::export::ExportFormat::Json => "JSON",
+                        crate::export::ExportFormat::Html => "HTML",
                     },
                     self.process_data.len()
                 );

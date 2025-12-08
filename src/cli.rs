@@ -309,8 +309,9 @@ async fn cmd_export(format: String, output: Option<PathBuf>, include_processes: 
     let export_format = match format.to_lowercase().as_str() {
         "csv" => ExportFormat::Csv,
         "json" => ExportFormat::Json,
+        "html" => ExportFormat::Html,
         _ => {
-            println!("❌ Invalid format '{}'. Supported formats: csv, json", format);
+            println!("❌ Invalid format '{}'. Supported formats: csv, json, html", format);
             return Ok(());
         }
     };
@@ -350,6 +351,10 @@ async fn cmd_export(format: String, output: Option<PathBuf>, include_processes: 
             match export_format {
                 ExportFormat::Csv => println!("   Excel, LibreOffice, or any spreadsheet app"),
                 ExportFormat::Json => println!("   Text editor, browser, or JSON viewer"),
+                ExportFormat::Html => {
+                    println!("   Web browser (Chrome, Firefox, Edge, etc.)");
+                    println!("   Double-click the file to open in default browser");
+                }
             }
         }
         Err(e) => {
