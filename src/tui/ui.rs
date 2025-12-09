@@ -24,6 +24,7 @@ pub enum ModalType {
     None,
     KillConfirm,
     ProcessDetail,
+    ExportFormat,
 }
 
 pub struct SettingsState {
@@ -65,6 +66,7 @@ pub struct Ui {
     search_query: String,
     settings_state: SettingsState,
     pending_kill_pid: Option<u32>,
+    export_format_selection: usize, // 0=CSV, 1=JSON, 2=HTML
     
     // Data
     cpu_data: Option<CpuSnapshot>,
@@ -98,6 +100,7 @@ impl Ui {
                 show_per_core_cpu: true,
             },
             pending_kill_pid: None,
+            export_format_selection: 0,
             cpu_data: None,
             memory_data: None,
             disk_data: None,
@@ -249,6 +252,7 @@ impl Ui {
         let (title, width, height, border_color) = match self.modal_type {
             ModalType::KillConfirm => ("⚠️  Kill Process", 70, 70, Color::Red),
             ModalType::ProcessDetail => ("ℹ️  Process Details", 70, 60, Color::Cyan),
+            ModalType::ExportFormat => ("📤 Export Data", 60, 40, Color::Green),
             ModalType::None => ("Modal", 60, 20, Color::White),
         };
         
@@ -809,6 +813,57 @@ impl Ui {
     
     pub fn is_kill_confirm_modal(&self) -> bool {
         self.show_modal && self.modal_type == ModalType::KillConfirm
+    }
+    
+    pub fn is_export_format_modal(&self) -> bool {
+        self.show_modal && self.modal_type == ModalType::ExportFormat
+    }
+    
+    pub fn show_export_format_modal(&mut self) {
+        self.modal_message = format!(
+            "Select export format:\n\
+             \n\
+             {}  [1] CSV  - Comma-separated values\n\
+             {}  [2] JSON - JavaScript Object Notation\n\
+             {}  [3] HTML - Interactive web page\n\
+             \n\
+             ┌──────────────────────────────────────────────┐\n\
+             │  Use [1-3] or [↑↓] to select                 │\n\
+             │  Press [ENTER] to export                     │\n\
+             │  Press [ESC] to cancel                       │\n\
+             └──────────────────────────────────────────────┘",
+            if self.export_format_selection == 0 { "→" } else { " " },
+            if self.export_format_selection == 1 { "→" } else { " " },
+            if self.export_format_selection == 2 { "→" } else { " " }
+        );
+        
+        self.modal_type = ModalType::ExportFormat;
+        self.show_modal = true;
+    }
+    
+    pub fn export_format_navigate(&mut self, direction: i32) {
+        if direction > 0 {
+            self.export_format_selection = (self.export_format_selection + 1).min(2);
+        } else {
+            self.export_format_selection = self.export_format_selection.saturating_sub(1);
+        }
+        self.show_export_format_modal(); // Refresh modal display
+    }
+    
+    pub fn export_format_select(&mut self, index: usize) {
+        if index < 3 {
+            self.export_format_selection = index;
+            self.show_export_format_modal(); // Refresh modal display
+        }
+    }
+    
+    pub fn get_selected_export_format(&self) -> crate::export::ExportFormat {
+        match self.export_format_selection {
+            0 => crate::export::ExportFormat::Csv,
+            1 => crate::export::ExportFormat::Json,
+            2 => crate::export::ExportFormat::Html,
+            _ => crate::export::ExportFormat::Json,
+        }
     }
     
     pub fn is_search_mode(&self) -> bool {

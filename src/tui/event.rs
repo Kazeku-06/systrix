@@ -37,17 +37,29 @@ impl EventHandler {
                 return Ok(true);
             }
             
-            // Panel navigation - always switch panels with number keys
-            KeyCode::Char('1') => ui.set_active_panel(0),
-            KeyCode::Char('2') => ui.set_active_panel(1),
-            KeyCode::Char('3') => ui.set_active_panel(2),
-            KeyCode::Char('4') => ui.set_active_panel(3),
-            KeyCode::Char('5') => ui.set_active_panel(4),
+            // Panel navigation - always switch panels with number keys (unless in export modal)
+            KeyCode::Char('1') if !ui.is_export_format_modal() => ui.set_active_panel(0),
+            KeyCode::Char('2') if !ui.is_export_format_modal() => ui.set_active_panel(1),
+            KeyCode::Char('3') if !ui.is_export_format_modal() => ui.set_active_panel(2),
+            KeyCode::Char('4') if !ui.is_export_format_modal() => ui.set_active_panel(3),
+            KeyCode::Char('5') if !ui.is_export_format_modal() => ui.set_active_panel(4),
             KeyCode::Tab => ui.next_panel(),
             
             // List navigation
-            KeyCode::Up => ui.scroll_up(),
-            KeyCode::Down => ui.scroll_down(),
+            KeyCode::Up => {
+                if ui.is_export_format_modal() {
+                    ui.export_format_navigate(-1);
+                } else {
+                    ui.scroll_up();
+                }
+            }
+            KeyCode::Down => {
+                if ui.is_export_format_modal() {
+                    ui.export_format_navigate(1);
+                } else {
+                    ui.scroll_down();
+                }
+            }
             KeyCode::PageUp => ui.page_up(),
             KeyCode::PageDown => ui.page_down(),
             KeyCode::Home => ui.scroll_to_top(),
@@ -55,7 +67,12 @@ impl EventHandler {
             
             // Actions
             KeyCode::Enter => {
-                if !ui.is_modal_open() {
+                if ui.is_export_format_modal() {
+                    // Export with selected format
+                    let format = ui.get_selected_export_format();
+                    ui.cancel_action(); // Close modal first
+                    ui.export_data(format);
+                } else if !ui.is_modal_open() {
                     ui.show_details();
                 }
             }
@@ -81,13 +98,16 @@ impl EventHandler {
             KeyCode::Char('p') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_pause(),
             KeyCode::Char('t') if !ui.is_search_mode() && !ui.is_modal_open() => ui.toggle_theme(),
             KeyCode::Char('e') if !ui.is_search_mode() && !ui.is_modal_open() => {
-                ui.export_data(crate::export::ExportFormat::Json)
+                ui.show_export_format_modal()
             }
-            KeyCode::Char('c') if !ui.is_search_mode() && !ui.is_modal_open() && key.modifiers.contains(KeyModifiers::CONTROL) => {
-                ui.export_data(crate::export::ExportFormat::Csv)
+            KeyCode::Char('1') if ui.is_export_format_modal() => {
+                ui.export_format_select(0);
             }
-            KeyCode::Char('h') if !ui.is_search_mode() && !ui.is_modal_open() && key.modifiers.contains(KeyModifiers::CONTROL) => {
-                ui.export_data(crate::export::ExportFormat::Html)
+            KeyCode::Char('2') if ui.is_export_format_modal() => {
+                ui.export_format_select(1);
+            }
+            KeyCode::Char('3') if ui.is_export_format_modal() => {
+                ui.export_format_select(2);
             }
             KeyCode::Char('/') if !ui.is_search_mode() && !ui.is_modal_open() => ui.start_search(),
             KeyCode::Esc => ui.cancel_action(),

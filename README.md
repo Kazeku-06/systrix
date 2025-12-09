@@ -11,6 +11,7 @@
 - 🔋 **Battery monitoring**: Battery status, charge level, time remaining (laptops)
 - 🖥️ **Interactive TUI**: Full-screen terminal UI with charts and tables
 - ⚡ **CLI commands**: Quick system snapshots and process management
+- 📤 **Data export**: Export to CSV, JSON, or interactive HTML with format selection modal
 - 🎨 **Multiple themes**: Dark, Light, Dracula
 - 🔌 **Plugin system**: Extensible architecture
 - 🌐 **Remote monitoring**: Optional remote agent (feature flag)
@@ -102,17 +103,18 @@ systrix tui --refresh-interval 1000
 | Key | Action |
 |-----|--------|
 | `q` | Quit |
-| `1-7` | Switch panels (Overview, Processes, Network, Disk, GPU, Tools, Settings) |
+| `1-5` | Switch panels (Overview, Processes, Network, Disk, Settings) |
 | `Tab` | Next panel |
 | `↑↓` | Navigate list |
-| `Enter` | Show details |
+| `Enter` | Show details / Confirm export |
 | `/` | Search processes |
 | `k` | Kill selected process |
-| `s` | Suspend process |
-| `r` | Resume process |
-| `+/-` | Renice process |
+| `e` | **Export data (opens format selection modal)** |
+| `Ctrl+C` | Export to CSV (direct) |
+| `Ctrl+H` | Export to HTML (direct) |
 | `p` | Pause/resume refresh |
 | `t` | Toggle theme |
+| `ESC` | Close modal / Cancel search |
 
 ### TUI Screenshots (ASCII)
 

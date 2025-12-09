@@ -15,6 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Time remaining estimation
   - Battery health percentage
   - Cross-platform support (Windows, Linux, macOS)
+- 📤 **Export Format Selection Modal** - Interactive modal untuk memilih format export
+  - Tekan `e` untuk membuka modal pilihan format
+  - Pilih CSV, JSON, atau HTML dengan tombol 1-3
+  - Navigasi dengan arrow keys (↑/↓)
+  - Konfirmasi dengan Enter, batalkan dengan ESC
+  - Shortcut langsung: Ctrl+C (CSV), Ctrl+H (HTML)
+- 🌐 **HTML Export Format** - Export data ke format HTML interaktif
+  - Tampilan visual yang indah dengan gradient dan card layout
+  - Tabel proses yang bisa di-sort
+  - Fitur search/filter real-time
+  - Progress bar untuk CPU, memory, dan battery
+  - Responsive design dan print-friendly
+  - Keyboard shortcuts (Ctrl+F, Ctrl+P)
 
 ## [0.2.0] - 2025-12-06
 
