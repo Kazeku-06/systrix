@@ -2,7 +2,7 @@
 name = "systrix"
 version = "0.4.0"
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.83"
 authors = ["Systrix Contributors"]
 description = "System Monitor Terminal App - CLI + TUI for monitoring system resources"
 license = "MIT"
