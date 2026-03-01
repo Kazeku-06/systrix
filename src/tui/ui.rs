@@ -1,5 +1,4 @@
-// src/tui/ui.rs
-//! Main UI rendering and layout.
+
 
 use anyhow::Result;
 use ratatui::{

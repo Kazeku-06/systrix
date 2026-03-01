@@ -1,5 +1,4 @@
-// src/tui/panels/disk.rs
-//! Disk panel with partition details and usage information.
+
 
 use ratatui::{
     layout::{Constraint, Rect},

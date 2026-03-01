@@ -1,5 +1,4 @@
-// src/tui/event.rs
-//! Event handling for TUI.
+
 
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};

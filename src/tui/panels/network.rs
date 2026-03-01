@@ -1,5 +1,3 @@
-// src/tui/panels/network.rs
-//! Network panel with interface details and traffic graphs.
 
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
@@ -21,12 +19,12 @@ pub fn render(
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),  // Summary
-            Constraint::Min(0),     // Interface table
+            Constraint::Length(3),  
+            Constraint::Min(0),     
         ])
         .split(area);
     
-    // Summary
+
     if let Some(network) = network_data {
         let summary_text = format!(
             "Total: ↓ {} | ↑ {} | {} interfaces",

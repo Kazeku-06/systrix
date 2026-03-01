@@ -1,5 +1,4 @@
-// src/tui/panels/settings.rs
-//! Settings panel with configuration options.
+
 
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},

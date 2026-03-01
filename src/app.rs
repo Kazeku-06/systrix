@@ -1,5 +1,4 @@
-// src/app.rs
-//! TUI application state and main loop.
+
 
 #[cfg(feature = "tui")]
 use anyhow::Result;

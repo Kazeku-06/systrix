@@ -1,5 +1,4 @@
-// src/cli.rs
-//! CLI argument parsing and command execution using clap v4.
+
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -18,27 +17,27 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Display system information summary
+    
     Info,
     
-    /// List processes
+    
     Ps {
-        /// Sort by: cpu, mem, io
+        
         #[arg(long, default_value = "cpu")]
         sort: String,
         
-        /// Filter processes by name
+        
         #[arg(long)]
         filter: Option<String>,
         
-        /// Limit number of results
+        
         #[arg(long, default_value = "20")]
         limit: usize,
     },
     
-    /// Kill a process
+
     Kill {
-        /// Process ID to kill
+        
         pid: u32,
         
         /// Signal to send: SIGTERM, SIGKILL

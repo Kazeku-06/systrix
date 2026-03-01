@@ -1,5 +1,4 @@
-// src/tui/panels/processes.rs
-//! Processes panel showing process list.
+
 
 use ratatui::{
     layout::{Constraint, Rect},

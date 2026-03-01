@@ -1,5 +1,4 @@
-// src/tui/panels/overview.rs
-//! Overview panel showing system summary.
+
 
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
