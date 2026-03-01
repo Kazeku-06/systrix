@@ -302,6 +302,7 @@ pub fn format_time_remaining(seconds: u64) -> String {
     }
 }
 
+#[allow(dead_code)]
 pub fn get_battery_icon(percentage: f32, is_charging: bool) -> &'static str {
     if is_charging {
         return "🔌";

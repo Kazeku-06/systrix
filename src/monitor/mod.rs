@@ -30,6 +30,7 @@ pub trait MonitorBackend: Send + Sync {
 }
 
 /// Process management operations
+#[allow(dead_code)]
 #[async_trait]
 pub trait ProcessManager: Send + Sync {
     async fn kill_process(&self, pid: u32, signal: &str) -> Result<()>;

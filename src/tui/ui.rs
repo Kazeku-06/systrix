@@ -285,6 +285,7 @@ impl Ui {
         }
     }
     
+    #[allow(dead_code)]
     pub fn set_settings_category(&mut self, category: usize) {
         if self.active_panel == 4 {
             self.settings_state.selected_category = category.min(4);
@@ -869,6 +870,7 @@ impl Ui {
         self.search_mode
     }
     
+    #[allow(dead_code)]
     pub fn is_in_settings_panel(&self) -> bool {
         self.active_panel == 4
     }

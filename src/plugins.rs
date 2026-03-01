@@ -31,6 +31,7 @@ pub struct PluginRegistry {
     plugins: HashMap<String, Box<dyn Plugin>>,
 }
 
+#[allow(dead_code)]
 impl PluginRegistry {
     pub fn new() -> Self {
         Self {

@@ -533,6 +533,7 @@ fn export_html(
 }
 
 /// Get default export directory
+#[allow(dead_code)]
 pub fn get_export_dir() -> String {
     std::env::current_dir()
         .map(|p| p.to_string_lossy().to_string())

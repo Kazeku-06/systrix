@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Kazeku-06/systrix/workflows/CI/badge.svg)](https://github.com/Kazeku-06/systrix/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/Kazeku-06/systrix/releases)
+[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/Kazeku-06/systrix/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/Kazeku-06/systrix)
 
 **Systrix** is a **cross-platform** system monitoring tool with both CLI and TUI interfaces, built in Rust. Fully tested and optimized for **Windows**, **Linux**, and **macOS**.
@@ -438,7 +438,7 @@ Copyright (c) 2025 Systrix Contributors
 
 ## 📈 Project Stats
 
-- **Version:** 0.4.0
+- **Version:** 0.5.0
 - **Language:** Rust
 - **Lines of Code:** ~8,000
 - **Dependencies:** 15 core crates

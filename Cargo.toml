@@ -1,8 +1,8 @@
 [package]
 name = "systrix"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
-rust-version = "1.83"
+rust-version = "1.70"
 authors = ["Systrix Contributors"]
 description = "System Monitor Terminal App - CLI + TUI for monitoring system resources"
 license = "MIT"

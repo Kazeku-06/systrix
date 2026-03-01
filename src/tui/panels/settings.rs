@@ -380,7 +380,7 @@ fn render_about(
         Line::from(""),
         Line::from(vec![
             Span::styled(
-                "Made by nopalll",
+                "Made by nopallgtg",
                 Style::default().fg(Color::Magenta)
             ),
         ]),
