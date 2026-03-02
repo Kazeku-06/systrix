@@ -75,7 +75,7 @@ async fn test_process_list() {
     assert!(!processes.is_empty());
     
     for proc in &processes {
-        assert!(proc.pid > 0);
+        // PID 0 is a valid PID on Windows (System Idle Process)
         assert!(!proc.name.is_empty());
     }
 }
